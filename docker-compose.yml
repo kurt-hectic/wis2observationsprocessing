@@ -20,11 +20,23 @@ services:
       - zookeeper
 
   producer:
-    build: producer/.
+    build: wis2bridge/.
     volumes:
-      - ./producer:/app
+      - ./wis2bridge:/app
     environment:
       - KAFKA_BROKER=kafka:9092
+      - TOPICS=cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop,cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+      - WIS_BROKER_HOST=globalbroker.meteo.fr
+      - WIS_BROKER_PORT=8883
+      - WIS_USERNAME=everyone
+      - WIS_PASSWORD=everyone
+      - VALIDATE_SSL=True 
+      - LOG_LEVEL=INFO
+      - KAFKA_TOPIC=notifications
+      - REPORTING_THRESHOLD=500
+      - BATCH_SIZE=50
+      - CLIENT_ID=wis2bridge_test_
+
     depends_on:
       - kafka
     tty: true
@@ -35,6 +47,9 @@ services:
       - ./consumer:/app
     environment:
       - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=notifications
+      - KAFKA_PUBTOPIC=notifications-dedup
+      - LOG_LEVEL=DEBUG
     depends_on:
       - kafka
     tty: true

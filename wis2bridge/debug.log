@@ -1,0 +1,826 @@
+2024-05-28 14:34:38,127 INFO:starting up bridge service
+2024-05-28 14:34:38,133 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]>: connecting to kafka:9092 [('172.23.0.3', 9092) IPv4]
+2024-05-28 14:34:38,133 INFO:Probing node bootstrap-0 broker version
+2024-05-28 14:34:38,135 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:34:38,135 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:34:38,186 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]>: connecting to kafka:9092 [('172.23.0.3', 9092) IPv4]
+2024-05-28 14:34:38,196 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:34:38,197 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.23.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:34:38,198 ERROR:error, exiting
+Traceback (most recent call last):
+  File "wis2toaws.py", line 246, in <module>
+    c = ConsumerThread(name='consumer')
+  File "wis2toaws.py", line 145, in __init__
+    self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 383, in __init__
+    client = self.config['kafka_client'](
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 244, in __init__
+    self.config['api_version'] = self.check_version(timeout=check_timeout)
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 900, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka3.errors.NoBrokersAvailable: NoBrokersAvailable
+2024-05-28 14:36:21,372 INFO:starting up bridge service
+2024-05-28 14:36:21,381 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:36:21,384 INFO:Probing node bootstrap-0 broker version
+2024-05-28 14:36:21,386 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:36:21,389 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:36:21,425 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:36:21,427 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:36:21,428 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:36:21,429 ERROR:error, exiting
+Traceback (most recent call last):
+  File "wis2toaws.py", line 246, in <module>
+    c = ConsumerThread(name='consumer')
+  File "wis2toaws.py", line 145, in __init__
+    self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 383, in __init__
+    client = self.config['kafka_client'](
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 244, in __init__
+    self.config['api_version'] = self.check_version(timeout=check_timeout)
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 900, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka3.errors.NoBrokersAvailable: NoBrokersAvailable
+2024-05-28 14:37:43,985 INFO:starting up bridge service
+2024-05-28 14:37:43,997 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:37:43,998 INFO:Probing node bootstrap-0 broker version
+2024-05-28 14:37:44,000 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:37:44,000 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:37:44,044 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:37:44,046 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:37:44,046 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:37:44,047 ERROR:error, exiting
+Traceback (most recent call last):
+  File "wis2toaws.py", line 246, in <module>
+    c = ConsumerThread(name='consumer')
+  File "wis2toaws.py", line 145, in __init__
+    self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 383, in __init__
+    client = self.config['kafka_client'](
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 244, in __init__
+    self.config['api_version'] = self.check_version(timeout=check_timeout)
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 900, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka3.errors.NoBrokersAvailable: NoBrokersAvailable
+2024-05-28 14:59:24,186 INFO:starting up bridge service
+2024-05-28 14:59:24,197 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:59:24,198 INFO:Probing node bootstrap-0 broker version
+2024-05-28 14:59:24,198 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:59:24,199 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:59:24,240 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 14:59:24,240 ERROR:Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]> returned error 111. Disconnecting.
+2024-05-28 14:59:24,240 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+2024-05-28 14:59:24,245 ERROR:error, exiting
+Traceback (most recent call last):
+  File "wis2toaws.py", line 246, in <module>
+    c = ConsumerThread(name='consumer')
+  File "wis2toaws.py", line 145, in __init__
+    self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 383, in __init__
+    client = self.config['kafka_client'](
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 244, in __init__
+    self.config['api_version'] = self.check_version(timeout=check_timeout)
+  File "/usr/local/lib/python3.8/site-packages/kafka3/client_async.py", line 900, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka3.errors.NoBrokersAvailable: NoBrokersAvailable
+2024-05-28 15:02:03,193 INFO:starting up bridge service
+2024-05-28 15:02:23,223 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:02:23,224 INFO:Probing node bootstrap-0 broker version
+2024-05-28 15:02:23,225 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:02:23,329 INFO:Broker version identified as 2.6.0
+2024-05-28 15:02:23,330 INFO:Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+2024-05-28 15:02:23,333 INFO:created AWS connection
+2024-05-28 15:02:23,334 INFO:creating connection to WIS2
+2024-05-28 15:02:23,334 INFO:creating wis2 connection to globalbroker.meteo.fr:8883 using everyone/everyone over tcp with client id wis2bridge_test_ekjzdi, validate_ssl=True
+2024-05-28 15:02:23,335 INFO:setting up TLS connection
+2024-05-28 15:02:23,456 INFO:connected to WIS2
+2024-05-28 15:02:23,506 INFO:Connected flags: ConnectFlags(session_present=False) result code: Success 
+2024-05-28 15:02:23,506 INFO:subscribing to:cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:02:23,506 INFO:subscribing to:cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:02:23,532 INFO:in on subscribe callback result 1
+2024-05-28 15:02:23,557 INFO:in on subscribe callback result 2
+2024-05-28 15:02:23,590 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:23,642 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to 5cab3a0a7168:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:02:23,643 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:02:23,643 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. 
+2024-05-28 15:02:23,693 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:23,794 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:23,895 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:23,996 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,096 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,197 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,298 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,399 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,499 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,600 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,701 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,802 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:24,903 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,003 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,104 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,205 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,306 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,406 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,507 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,608 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,709 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,810 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:25,910 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,011 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,112 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,212 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,313 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,414 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,515 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,616 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,716 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,817 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:26,918 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,018 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,120 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,221 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,321 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,422 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,523 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,624 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,725 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,826 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:27,926 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,027 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,128 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,177 INFO:received signal SIGTERM
+2024-05-28 15:02:28,177 INFO:connection to broker has been lost
+2024-05-28 15:02:28,229 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,329 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,430 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,531 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,631 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,732 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,833 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:28,934 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,034 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,135 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,236 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,336 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,439 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,539 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,640 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,741 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,841 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:29,942 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,043 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,144 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,244 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,345 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,446 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,546 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,647 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,748 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,849 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:30,949 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,050 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,151 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,253 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,357 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,461 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,563 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,664 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,765 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,865 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:31,966 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:32,067 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:32,171 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:32,271 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:32,372 ERROR:could not publish records to Kafka
+Traceback (most recent call last):
+  File "wis2toaws.py", line 170, in run
+    self.producer.send(
+  File "/usr/local/lib/python3.8/site-packages/kafka3/producer/kafka.py", line 587, in send
+    assert type(key_bytes) in (bytes, bytearray, memoryview, type(None))
+AssertionError
+2024-05-28 15:02:32,473 INFO:Consumer Thread #140409714747136 stopped
+2024-05-28 15:02:32,473 INFO:exiting main thread
+2024-05-28 15:02:32,473 INFO:Closing the Kafka producer with 0 secs timeout.
+2024-05-28 15:02:32,473 INFO:Proceeding to force close the producer since pending requests could not be completed within timeout 0.
+2024-05-28 15:03:54,349 INFO:starting up bridge service
+2024-05-28 15:04:14,383 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:04:14,384 INFO:Probing node bootstrap-0 broker version
+2024-05-28 15:04:14,386 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:04:14,516 INFO:Broker version identified as 2.6.0
+2024-05-28 15:04:14,516 INFO:Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+2024-05-28 15:04:14,518 INFO:created AWS connection
+2024-05-28 15:04:14,519 INFO:creating connection to WIS2
+2024-05-28 15:04:14,520 INFO:creating wis2 connection to globalbroker.meteo.fr:8883 using everyone/everyone over tcp with client id wis2bridge_test_zxqnfj, validate_ssl=True
+2024-05-28 15:04:14,520 INFO:setting up TLS connection
+2024-05-28 15:04:14,577 INFO:connected to WIS2
+2024-05-28 15:04:14,606 INFO:Connected flags: ConnectFlags(session_present=False) result code: Success 
+2024-05-28 15:04:14,606 INFO:subscribing to:cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:04:14,607 INFO:subscribing to:cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:04:14,621 INFO:in on subscribe callback result 1
+2024-05-28 15:04:14,635 INFO:in on subscribe callback result 2
+2024-05-28 15:04:14,805 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to 5cab3a0a7168:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:04:14,805 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:04:14,805 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. 
+2024-05-28 15:05:00,158 INFO:received signal SIGTERM
+2024-05-28 15:05:00,159 INFO:connection to broker has been lost
+2024-05-28 15:05:00,160 INFO:Consumer Thread #140512301852416 stopped
+2024-05-28 15:05:00,160 INFO:exiting main thread
+2024-05-28 15:05:00,160 INFO:Closing the Kafka producer with 0 secs timeout.
+2024-05-28 15:05:00,161 INFO:Proceeding to force close the producer since pending requests could not be completed within timeout 0.
+2024-05-28 15:27:57,056 INFO:starting up bridge service
+2024-05-28 15:28:17,087 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:28:17,088 INFO:Probing node bootstrap-0 broker version
+2024-05-28 15:28:17,089 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:28:17,195 INFO:Broker version identified as 2.6.0
+2024-05-28 15:28:17,195 INFO:Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+2024-05-28 15:28:17,197 INFO:created Kafka connection
+2024-05-28 15:28:17,199 INFO:creating connection to WIS2
+2024-05-28 15:28:17,199 INFO:creating wis2 connection to globalbroker.meteo.fr:8883 using everyone/everyone over tcp with client id wis2bridge_test_rhmwbd, validate_ssl=True
+2024-05-28 15:28:17,199 INFO:setting up TLS connection
+2024-05-28 15:28:17,319 INFO:connected to WIS2
+2024-05-28 15:28:17,370 INFO:Connected flags: ConnectFlags(session_present=False) result code: Success 
+2024-05-28 15:28:17,370 INFO:subscribing to:cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:28:17,370 INFO:subscribing to:cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:28:17,397 INFO:in on subscribe callback result 1
+2024-05-28 15:28:17,422 INFO:in on subscribe callback result 2
+2024-05-28 15:28:18,000 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to 5cab3a0a7168:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:28:18,000 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:28:18,000 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. 
+2024-05-28 15:28:28,410 INFO:received signal SIGTERM
+2024-05-28 15:28:28,410 INFO:connection to broker has been lost
+2024-05-28 15:28:28,420 INFO:Consumer Thread #140034917189376 stopped
+2024-05-28 15:28:28,420 INFO:exiting main thread
+2024-05-28 15:28:28,420 INFO:Closing the Kafka producer with 0 secs timeout.
+2024-05-28 15:28:28,421 INFO:Proceeding to force close the producer since pending requests could not be completed within timeout 0.
+2024-05-28 15:41:15,676 INFO:starting up bridge service
+2024-05-28 15:41:35,701 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to kafka:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:41:35,702 INFO:Probing node bootstrap-0 broker version
+2024-05-28 15:41:35,703 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:41:35,808 INFO:Broker version identified as 2.6.0
+2024-05-28 15:41:35,809 INFO:Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+2024-05-28 15:41:35,811 INFO:created Kafka connection
+2024-05-28 15:41:35,812 INFO:creating connection to WIS2
+2024-05-28 15:41:35,813 INFO:creating wis2 connection to globalbroker.meteo.fr:8883 using everyone/everyone over tcp with client id wis2bridge_test_vpdypn, validate_ssl=True
+2024-05-28 15:41:35,813 INFO:setting up TLS connection
+2024-05-28 15:41:35,931 INFO:connected to WIS2
+2024-05-28 15:41:35,982 INFO:Connected flags: ConnectFlags(session_present=False) result code: Success 
+2024-05-28 15:41:35,982 INFO:subscribing to:cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:41:35,983 INFO:subscribing to:cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:41:36,008 INFO:in on subscribe callback result 1
+2024-05-28 15:41:36,033 INFO:in on subscribe callback result 2
+2024-05-28 15:41:36,056 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: connecting to 5cab3a0a7168:9092 [('172.24.0.3', 9092) IPv4]
+2024-05-28 15:41:36,057 INFO:<BrokerConnection node_id=1 host=5cab3a0a7168:9092 <connecting> [IPv4 ('172.24.0.3', 9092)]>: Connection complete.
+2024-05-28 15:41:36,058 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.24.0.3', 9092)]>: Closing connection. 
+2024-05-28 15:47:41,250 INFO:received signal SIGTERM
+2024-05-28 15:47:41,251 INFO:connection to broker has been lost
+2024-05-28 15:47:41,258 INFO:Consumer Thread #140691095938816 stopped
+2024-05-28 15:47:41,258 INFO:exiting main thread
+2024-05-28 15:47:41,259 INFO:Closing the Kafka producer with 0 secs timeout.
+2024-05-28 15:47:41,259 INFO:Proceeding to force close the producer since pending requests could not be completed within timeout 0.
+2024-05-28 15:47:47,477 INFO:starting up bridge service
+2024-05-28 15:47:58,468 INFO:received signal SIGTERM
+2024-05-28 15:47:58,468 ERROR:error shutting down, mqtt client likely not correctly initalized
+Traceback (most recent call last):
+  File "wis2toaws.py", line 228, in service_shutdown
+    client_wis2.loop_stop()
+NameError: name 'client_wis2' is not defined
+2024-05-28 15:48:15,108 INFO:starting up bridge service
+2024-05-28 15:48:35,137 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.25.0.3', 9092)]>: connecting to kafka:9092 [('172.25.0.3', 9092) IPv4]
+2024-05-28 15:48:35,138 INFO:Probing node bootstrap-0 broker version
+2024-05-28 15:48:35,139 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connecting> [IPv4 ('172.25.0.3', 9092)]>: Connection complete.
+2024-05-28 15:48:35,242 INFO:Broker version identified as 2.6.0
+2024-05-28 15:48:35,243 INFO:Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+2024-05-28 15:48:35,246 INFO:created Kafka connection
+2024-05-28 15:48:35,247 INFO:creating connection to WIS2
+2024-05-28 15:48:35,247 INFO:creating wis2 connection to globalbroker.meteo.fr:8883 using everyone/everyone over tcp with client id wis2bridge_test_afklue, validate_ssl=True
+2024-05-28 15:48:35,248 INFO:setting up TLS connection
+2024-05-28 15:48:35,356 INFO:connected to WIS2
+2024-05-28 15:48:35,399 INFO:Connected flags: ConnectFlags(session_present=False) result code: Success 
+2024-05-28 15:48:35,399 INFO:subscribing to:cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:48:35,400 INFO:subscribing to:cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+2024-05-28 15:48:35,421 INFO:in on subscribe callback result 1
+2024-05-28 15:48:35,440 INFO:in on subscribe callback result 2
+2024-05-28 15:48:41,352 INFO:<BrokerConnection node_id=1 host=163f61c5af85:9092 <connecting> [IPv4 ('172.25.0.3', 9092)]>: connecting to 163f61c5af85:9092 [('172.25.0.3', 9092) IPv4]
+2024-05-28 15:48:41,353 INFO:<BrokerConnection node_id=1 host=163f61c5af85:9092 <connecting> [IPv4 ('172.25.0.3', 9092)]>: Connection complete.
+2024-05-28 15:48:41,353 INFO:<BrokerConnection node_id=bootstrap-0 host=kafka:9092 <connected> [IPv4 ('172.25.0.3', 9092)]>: Closing connection. 

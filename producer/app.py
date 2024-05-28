@@ -11,6 +11,7 @@ while True:
     producer.send(
         topic="notifications",
         value=message.encode("utf-8"),
+        key
         
     )
     if count%20==0:
