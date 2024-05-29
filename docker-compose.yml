@@ -48,10 +48,10 @@ services:
       - kafka
     tty: true
 
-  consumer:
-    build: consumer/.
+  notification-dedup:
+    build: notification-dedup/.
     volumes:
-      - ./consumer:/app
+      - ./notification-dedup:/app
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
@@ -65,7 +65,23 @@ services:
       - kafka
     tty: true
 
-
+  content-processor:
+    build: content-processor/.
+    volumes:
+      - ./content-processor:/app
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_DEDUP}
+      - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_CONTENT}
+      - LOG_LEVEL=DEBUG
+      - POLL_TIMEOUT_SEC=2
+      - POLL_BATCH_SIZE=10
+      - NR_THREADS=2
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+    depends_on:
+      - kafka
+    tty: true
 
   mosquitto:
     image: eclipse-mosquitto
@@ -101,7 +117,10 @@ services:
     ports:
       - "8080:80"
     volumes:
+      - ./test-cache/njs/:/etc/nginx/njs/:ro
       - ./test-cache/cache-files:/usr/share/nginx/html
+      - ./test-cache/nginx.conf:/etc/nginx/nginx.conf
     environment:
       - NGINX_HOST=test-cache
+      - FAIL_RATE=0.5
     

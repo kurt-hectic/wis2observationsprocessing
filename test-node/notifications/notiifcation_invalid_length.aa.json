@@ -1,0 +1,45 @@
+{
+    "id": "9e9a2405-32a3-4351-bb6b-3fc9b30181f0",
+    "type": "Feature",
+    "version": "v04",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            -97.65528,
+            26.22972
+        ]
+    },
+    "properties": {
+        "data_id": "us-noaa-synoptic/data/core/weather/surface-based-observations/synop/WIGOS_0-840-0-KHRL_20240529T084100",
+        "datetime": "2024-05-29T08:41:00Z",
+        "pubtime": "2024-05-29T08:45:09Z",
+        "integrity": {
+            "method": "sha512",
+            "value": "zglD8BrjINSg4Mz77A6UwO0eXYdUC/T6N0e698uIGcG5impXtmxu2zObgb9VOLJ86w/OYx8oS4W0fRCFWkM5ww=="
+        },
+        "content": {
+            "encoding": "base64",
+            "value": "QlVGUgAA9wQAABYAAAAAAAAAAAZuHgAH6AUdCCkAAAALAAABgMGWx1AAAMoAADSAAAS0hSTAAAAAAAAAAAAAAAAP//paQpJgAAAAAAAAAAAAAAAAAAAAAP0K6ilYrR4PtL0BAFCAzPiz6P///////////7nNuV/X////////////////////gAB//////////////////////////////////////8Aln/wEP////////////////////A+j/v/SIDP///////////////////////////////////////////////////////////////+ANzc3Nw==",
+            "size": 47
+        },
+        "wigos_station_identifier": "0-840-0-KHRL"
+    },
+    "links": [
+        {
+            "rel": "canonical",
+            "type": "application/x-bufr",
+            "href": "https://gc.wis.cma.cn/20240529/cache/a/wis2/us-noaa-synoptic/data/core/weather/surface-based-observations/synop/WIGOS_0-840-0-KHRL_20240529T084100.bufr4",
+            "length": 47
+        },
+        {
+            "rel": "via",
+            "type": "text/html",
+            "href": "https://oscar.wmo.int/surface/#/search/station/stationReportDetails/0-840-0-KHRL"
+        }
+    ],
+    "_comment": {
+        "errors": [
+            "data_id is not correct"
+        ]
+    }
+}

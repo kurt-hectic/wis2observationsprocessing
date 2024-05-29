@@ -27,7 +27,7 @@ kafka_broker = os.getenv("KAFKA_BROKER")
 
 #consumer = KafkaConsumer(bootstrap_servers=kafka_broker, group_id='my-consumer-1')
 consumer = Consumer({'bootstrap.servers': kafka_broker,
-    'group.id': 'my-consumer-1',
+    'group.id': 'my-consumer-notification-1',
     'auto.offset.reset': 'earliest'})
 logging.info(f"subscribing to {kafka_topic_name}")
 consumer.subscribe([kafka_topic_name])
