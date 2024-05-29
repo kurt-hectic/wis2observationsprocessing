@@ -22,7 +22,7 @@ level = logging.getLevelName(log_level)
 
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
-    handlers=[ logging.FileHandler("debug.log"), logging.StreamHandler()] )
+    handlers=[  logging.StreamHandler()] )
 
 def get_random_string(length):
     # choose from all lowercase letter
@@ -243,8 +243,6 @@ if __name__ == '__main__':
     
     try:
     
-        time.sleep(20) # waiting for kafka to be available
-
         c = ConsumerThread(name='consumer')
         c.start()
         

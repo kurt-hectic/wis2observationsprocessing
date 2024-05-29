@@ -41,6 +41,8 @@ services:
       - REPORTING_THRESHOLD=500
       - BATCH_SIZE=50
       - CLIENT_ID=wis2bridge_test_
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
 
     depends_on:
       - kafka
@@ -56,6 +58,8 @@ services:
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
       - LOG_LEVEL=INFO
       - POLL_TIMEOUT_SEC=5
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
     depends_on:
       - kafka
     tty: true

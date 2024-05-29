@@ -9,11 +9,7 @@ level = logging.getLevelName(log_level)
 
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
-    handlers=[ logging.FileHandler("debug.log"), logging.StreamHandler()] )
-
-startuptimeout=20
-logging.info(f"Consumer starting up, wating for {startuptimeout} seconds")
-time.sleep(startuptimeout)  # Wait for Kafka to start
+    handlers=[  logging.StreamHandler()] )
 
 poll_timeout_seconds = int(os.getenv("POLL_TIMEOUT_SEC"))
 
