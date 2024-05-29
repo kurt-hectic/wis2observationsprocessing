@@ -13,7 +13,7 @@ import queue
 
 import paho.mqtt.client as mqtt_paho
 
-from kafka3 import KafkaProducer
+from confluent_kafka import Producer
 from datetime import datetime
 from uuid import uuid4
 
@@ -30,6 +30,7 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
+kafka_broker = os.getenv("KAFKA_BROKER")
 topics = [t.strip() for t in os.getenv("TOPICS","cache/a/wis2/#").split(",")]
 wis_broker_host = os.getenv("WIS_BROKER_HOST")
 wis_broker_port = int(os.getenv("WIS_BROKER_PORT"))
@@ -95,6 +96,13 @@ def message_routing(client,topic,msg):
         logging.error("cannot parse json message %s , %s , %s",msg,e,topic)
         return    
 
+    # add uuid as data_id if not present    
+    if not "properties" in msg or not "data_id" in msg["properties"]:
+        if not "properties" in msg:
+            msg["properties"] = {}
+        msg["properties"] = { "data_id" : str(uuid4()) }
+        logging.warning("no data_id in message, adding %s",msg["properties"]["data_id"])
+
     msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
     
     logging.debug("queuing topic %s with length %s and %s",topic,len(msg),msg)
@@ -128,6 +136,14 @@ def create_wis2_connection():
     return client
     
 
+    
+def delivery_report(err, msg):
+    """ Called once for each message produced to indicate delivery result.
+        Triggered by poll() or flush(). """
+    if err is not None:
+        logging.error('Message delivery failed: {}'.format(err))
+    else:
+        logging.debug('Message delivered to %s [%s]', msg.topic() , msg.partition())
 
 
 
@@ -142,12 +158,13 @@ class ConsumerThread(threading.Thread):
         self.shutdown_flag = threading.Event()
         #self.kinesis = boto3.client('kinesis')
 
-        self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+        #self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
+        self.producer = Producer({'bootstrap.servers': kafka_broker})
 
         logging.info("created Kafka connection")
 
         return
-    
+
 
     def run(self):
         counter = 0
@@ -167,11 +184,19 @@ class ConsumerThread(threading.Thread):
                 
                 for (topic,msg) in records: #TODO we may not need this batching, since the producer also has a queue
                     try:
-                        self.producer.send(
+                        # self.producer.send(
+                        #     topic=kafka_topic_name,
+                        #     value=json.dumps(msg).encode("utf-8"),
+                        #     key=msg["properties"]["data_id"].encode("utf-8")
+                        # )
+
+                        self.producer.produce(
                             topic=kafka_topic_name,
-                            value=json.dumps(msg).encode("utf-8"),
-                            key=msg["properties"]["data_id"].encode("utf-8")
+                            value=json.dumps(msg),
+                            key=msg["properties"]["data_id"],
+                            on_delivery=delivery_report
                         )
+
                     except Exception as e:
                         logging.error(f"could not publish records to Kafka",exc_info=True)
                         q.put( (topic,msg) ) # put failed notifications back into the queue

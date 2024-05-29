@@ -57,7 +57,8 @@ services:
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=5
+      - POLL_TIMEOUT_SEC=10
+      - POLL_BATCH_SIZE=50
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
     depends_on:
@@ -93,4 +94,14 @@ services:
 
     tty: true
 
+
+  test-cache:
+    hostname: test-cache
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./test-cache/cache-files:/usr/share/nginx/html
+    environment:
+      - NGINX_HOST=test-cache
     

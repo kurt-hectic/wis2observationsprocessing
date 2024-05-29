@@ -1,2 +1,2 @@
-kafka-python3
-paho-mqtt
+confluent-kafka
+jsonschema
