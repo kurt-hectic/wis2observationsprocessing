@@ -8,31 +8,36 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
   kafka:
     image: 'bitnami/kafka:latest'
+    hostname: ${KAFKA_NAME}
+    container_name: ${KAFKA_NAME}
     ports:
-      - '9092:9092'
+      - '${KAFKA_PORT}:${KAFKA_PORT}'
     environment:
       - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
 
-  producer:
+  wis2bridge:
     build: wis2bridge/.
     volumes:
       - ./wis2bridge:/app
     environment:
-      - KAFKA_BROKER=kafka:9092
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - TOPICS=cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop,cache/a/wis2/+/data/core/weather/surface-based-observations/synop
-      - WIS_BROKER_HOST=globalbroker.meteo.fr
-      - WIS_BROKER_PORT=8883
+      #- WIS_BROKER_HOST=globalbroker.meteo.fr
+      #- WIS_BROKER_PORT=8883
+      #- VALIDATE_SSL=True 
+      - WIS_BROKER_HOST=mosquitto
+      - WIS_BROKER_PORT=1883
+      - VALIDATE_SSL=False
       - WIS_USERNAME=everyone
       - WIS_PASSWORD=everyone
-      - VALIDATE_SSL=True 
       - LOG_LEVEL=INFO
-      - KAFKA_TOPIC=notifications
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
       - REPORTING_THRESHOLD=500
       - BATCH_SIZE=50
       - CLIENT_ID=wis2bridge_test_
@@ -46,10 +51,42 @@ services:
     volumes:
       - ./consumer:/app
     environment:
-      - KAFKA_BROKER=kafka:9092
-      - KAFKA_TOPIC=notifications
-      - KAFKA_PUBTOPIC=notifications-dedup
-      - LOG_LEVEL=DEBUG
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
+      - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
+      - LOG_LEVEL=INFO
+      - POLL_TIMEOUT_SEC=5
     depends_on:
       - kafka
     tty: true
+
+
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./test-broker:/etc/mosquitto
+      - ./test-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    
+
+  mqtt-producer:
+    build: ./test-node/.
+
+    volumes:
+      - ./test-node:/app
+
+    working_dir: /app
+    command: bash publoop.sh
+
+    depends_on:
+      - mosquitto
+
+    tty: true
+
+    
