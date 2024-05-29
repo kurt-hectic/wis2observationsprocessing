@@ -132,19 +132,23 @@ while True:
         notifications = [ json.loads( message.value()) for message in messages if not message.error() ]
 
         initial_length = len(notifications)
-        logging.info(f"{initial_length} new messages")
+        logging.debug(f"{initial_length} new messages")
 
         # download content for each notification if not included
         notifications =  [ n for n in [ content_check(notification) for notification in notifications ] if n ]
         nr_with_content = len(notifications)
-        logging.info("number of notifications with content %s. Removed %s because of no content", nr_with_content,initial_length-nr_with_content)
+        logging.debug("number of notifications with content %s", nr_with_content)
+        if initial_length-nr_with_content > 0:
+            logging.warning("removed %s because of no content",initial_length-nr_with_content)
 
         # validate content checksum and length
         notifications =  [ n for n in [ integrity_check(notification) for notification in notifications ] if n ]
         nr_with_ingegrity = len(notifications)
-        logging.info("number of notifications with correct integrity and length %s. Removed %s because of integrity or length", nr_with_ingegrity,nr_with_content-nr_with_ingegrity)
+        logging.debug("number of notifications with correct integrity and length %s",nr_with_ingegrity)
+        if nr_with_content-nr_with_ingegrity>0:
+            logging.warning("removed %s because of integrity or length",nr_with_content-nr_with_ingegrity)
 
-        logging.info("sending %s notifications to Kafka %s", len(notifications),kafka_pubtopic_name)
+        logging.debug("sending %s notifications to Kafka %s", len(notifications),kafka_pubtopic_name)
         for notification in notifications:
             producer.produce(
                 topic=kafka_pubtopic_name,

@@ -58,18 +58,19 @@ while True:
         notifications = [ json.loads( message.value()) for message in messages if not message.error() ]
 
         initial_length = len(notifications)
-        logging.info(f"{initial_length} new messages")
+        logging.debug(f"{initial_length} new messages")
 
         # only accept valid notificatons 
         notifications = [n for n in notifications if draft_202012_validator.is_valid(n)]
         nr_non_valid = initial_length - len(notifications)
-        logging.info("filtered out %s non-valid records inside one batch ", nr_non_valid )
+        if nr_non_valid>0:
+            logging.warning("filtered out %s non-valid records inside one batch ", nr_non_valid )
 
         # filter out possible duplicates inside the batch
         data_ids_in_notifications = [n["properties"]["data_id"] for n in notifications]
         notifications = [n for i,n in enumerate(notifications) if not n["properties"]["data_id"] in data_ids_in_notifications[:i] ]
         nr_duplicate_in_batch = (initial_length+nr_non_valid)-len(notifications)
-        logging.info("filtered out %s duplicate records inside one batch ", nr_duplicate_in_batch )
+        logging.debug("filtered out %s duplicate records inside one batch ", nr_duplicate_in_batch )
 
         for notification in notifications:
             producer.produce(
