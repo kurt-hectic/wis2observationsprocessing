@@ -1,0 +1,3 @@
+confluent-kafka
+jq
+psycopg2-binary

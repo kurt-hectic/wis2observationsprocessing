@@ -1,5 +1,31 @@
 version: "3"
 services:
+
+
+  db:
+    image: postgres
+    hostname: ${DB_HOST_NAME}
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PW}
+      POSTGRES_DB: ${DB_NAME}
+
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     ports:
@@ -79,6 +105,45 @@ services:
       - NR_THREADS=2
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
+    depends_on:
+      - kafka
+    tty: true
+
+  decoding-processor:
+    build: decoding-processor/.
+    volumes:
+      - ./decoding-processor:/app
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_CONTENT}
+      - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_OUTPUT}
+      - LOG_LEVEL=INFO
+      - POLL_TIMEOUT_SEC=2
+      - POLL_BATCH_SIZE=10
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+    depends_on:
+      - kafka
+    tty: true
+
+
+  output-processor:
+    build: output-processor/.
+    volumes:
+      - ./output-processor:/app
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_OUTPUT}
+      - LOG_LEVEL=DEBUG
+      - POLL_TIMEOUT_SEC=60
+      - POLL_BATCH_SIZE=500
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PW=${DB_PW}
+      - DB_HOST_NAME=${DB_HOST_NAME}
+
     depends_on:
       - kafka
     tty: true
