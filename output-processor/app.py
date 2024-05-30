@@ -75,7 +75,7 @@ while True:
             observed_property = jq_observed_property.input(observation).first()
 
 
-            logging.debug(f"lat: {lat}, lon: {lon}, alt: {alt}")
+            #logging.debug(f"lat: {lat}, lon: {lon}, alt: {alt}")
 
             tpl = (wigosid,lat,lon,alt,observed_property,dataid,meta_topic,meta_time_received)
 
@@ -83,6 +83,8 @@ while True:
 
 
         execute_values(conn.cursor(), sql_insert, values)
+        conn.commit()
+            
         logging.debug("added %s records to the database", len(values))
 
 
