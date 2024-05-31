@@ -32,20 +32,29 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+
   kafka:
     image: 'bitnami/kafka:latest'
     hostname: ${KAFKA_NAME}
     container_name: ${KAFKA_NAME}
     ports:
       - '${KAFKA_PORT}:${KAFKA_PORT}'
+      - '7071:7071'
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_OPTS=-javaagent:/opt/bitnami/kafka/libs/kafka-jmx-prometheus-javaagent-1.0.1.jar=7071:/opt/agents/kafka_jmx_exporter.yml
+    volumes:
+      - ./jmx-exporter/kafka_jmx_exporter.yml/:/opt/agents/kafka_jmx_exporter.yml
+      - ./jmx-exporter/jmx_prometheus_javaagent-1.0.1.jar:/opt/bitnami/kafka/libs/kafka-jmx-prometheus-javaagent-1.0.1.jar
+      
     depends_on:
       - zookeeper
+
+
 
   wis2bridge:
     build: wis2bridge/.
@@ -217,7 +226,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
+      - 'grafana_storage:/var/lib/grafana'
 
-#volumes:
+volumes:
+  grafana_storage: {}
 #  prom_data:
+
     
