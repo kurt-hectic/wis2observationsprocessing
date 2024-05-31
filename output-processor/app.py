@@ -41,13 +41,29 @@ conn = psycopg2.connect(f"dbname={dbname} user={dbuser} password={dbpw} host={db
 
 jq_geometry = jq.compile('.data.geometry.coordinates')
 jq_wigosid = jq.compile('.data.properties.wigos_station_identifier')
-jq_dataid = jq.compile('.notification.properties.data_id')
+
+jq_not_dataid = jq.compile('.notification.properties.data_id')
+jq_not_pubtime = jq.compile('.notification.properties.pubtime')
+jq_not_datetime = jq.compile('.notification.properties.datetime')
+jq_not_wigosid = jq.compile('.notification.properties.wigos_station_identifier')
+
 jq_meta_timereceived = jq.compile('.notification._meta.time_received')
 jq_meta_topic = jq.compile('.notification._meta.topic')
+jq_meta_broker = jq.compile('.notification._meta.broker')
+
 jq_observed_property = jq.compile('.data.properties.name')
+jq_observed_value = jq.compile('.data.properties.value')
+jq_observed_unit = jq.compile('.data.properties.units')
+
+jq_result_time = jq.compile('.data.properties.resultTime')
+jq_phenomenon_time = jq.compile('.data.properties.phenomenonTime')
 
 
-sql_insert = "INSERT INTO synopobservations (wigosid,latitude,longitude,elevation,observed_property,notification_data_id,meta_topic,meta_received_datetime) VALUES %s"
+sql_insert = """INSERT INTO synopobservations 
+    (wigosid,result_time,phenomenon_time,latitude,longitude,elevation,
+    observed_property, observed_value, observed_unit,
+    notification_data_id, notification_pubtime, notification_datetime, notification_wigosid,
+    meta_broker,meta_topic,meta_received_datetime) VALUES %s"""
 
 while True:
      
@@ -68,16 +84,23 @@ while True:
         for i,observation in enumerate(observations):
 
             wigosid = jq_wigosid.input(observation).first()
-            dataid = jq_dataid.input(observation).first()
+            result_time = jq_result_time.input(observation).first()
+            phenomenon_time = jq_phenomenon_time.input(observation).first()
             (lat,lon,alt) = jq_geometry.input(observation).first()
+            observed_property = jq_observed_property.input(observation).first()
+            observed_value = jq_observed_value.input(observation).first()
+            observed_unit = jq_observed_unit.input(observation).first()
+
+            ndataid = jq_not_dataid.input(observation).first()
+            npubtime = jq_not_pubtime.input(observation).first()
+            ndatetime = jq_not_datetime.input(observation).first()
+            nwigosid = jq_not_wigosid.input(observation).first()
+
             meta_topic = jq_meta_topic.input(observation).first()
             meta_time_received = jq_meta_timereceived.input(observation).first()
-            observed_property = jq_observed_property.input(observation).first()
+            meta_broker = jq_meta_broker.input(observation).first()
 
-
-            #logging.debug(f"lat: {lat}, lon: {lon}, alt: {alt}")
-
-            tpl = (wigosid,lat,lon,alt,observed_property,dataid,meta_topic,meta_time_received)
+            tpl = (wigosid,result_time,phenomenon_time,lat,lon,alt,observed_property,observed_value,observed_unit,ndataid,npubtime,ndatetime,nwigosid,meta_broker,meta_topic,meta_time_received)
 
             values.append(tpl)
 
