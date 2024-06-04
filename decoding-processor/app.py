@@ -3,12 +3,15 @@ import json
 import logging
 import warnings
 import base64
+import signal
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore",message=r"ecCodes .* or higher is recommended")
     from bufr2geojson import __version__, transform as as_geojson
 
 from confluent_kafka import Producer, Consumer
+from prometheus_client import start_http_server, Counter, Summary
+
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(log_level)
@@ -26,6 +29,9 @@ kafka_broker = os.getenv("KAFKA_BROKER")
 kafka_topic_name = os.getenv("KAFKA_TOPIC")
 kafka_pubtopic_name = os.getenv("KAFKA_PUBTOPIC")
 kafka_broker = os.getenv("KAFKA_BROKER")
+
+t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
+NR_DECODING_ERRORS = Counter('decoding_errors_total', 'Number of decoding errors')
 
 #consumer = KafkaConsumer(bootstrap_servers=kafka_broker, group_id='my-consumer-1')
 consumer = Consumer({'bootstrap.servers': kafka_broker,
@@ -58,13 +64,25 @@ def decode_bufr(notification):
                     ret.append( item['geojson'] )
 
     except Exception as e:
+        NR_DECODING_ERRORS.inc()
         logging.error("could not decode BUFR",exc_info=True)
-        return None
+        return []
     
     return ret
 
 
-while True:
+DONE = False
+
+def shutdown_gracefully(signum, stackframe):
+    logging.info("shutdown initiated")
+    global DONE
+    DONE = True
+
+signal.signal(signal.SIGINT, shutdown_gracefully)
+signal.signal(signal.SIGTERM, shutdown_gracefully)
+
+
+while not DONE:
      
     messages = consumer.consume(num_messages=poll_batch_size, timeout=poll_timeout_seconds)
 
@@ -103,3 +121,5 @@ while True:
         logging.debug("No new messages")
 
 
+logging.info("closing consumer")
+consumer.close()

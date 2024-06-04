@@ -3,9 +3,12 @@ import json
 import logging
 import jq
 import psycopg2
+import signal
 
 from psycopg2.extras import execute_values
 from confluent_kafka import  Consumer
+from prometheus_client import start_http_server, Counter, Summary
+
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(log_level)
@@ -21,6 +24,10 @@ kafka_broker = os.getenv("KAFKA_BROKER")
 kafka_topic_name = os.getenv("KAFKA_TOPIC")
 kafka_pubtopic_name = os.getenv("KAFKA_PUBTOPIC")
 kafka_broker = os.getenv("KAFKA_BROKER")
+
+t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
+NR_RECORDS_COMMITTED = Counter('records_committed_total', 'Number of records committed to the database')
+
 
 #consumer = KafkaConsumer(bootstrap_servers=kafka_broker, group_id='my-consumer-1')
 consumer = Consumer({'bootstrap.servers': kafka_broker,
@@ -65,7 +72,18 @@ sql_insert = """INSERT INTO synopobservations
     notification_data_id, notification_pubtime, notification_datetime, notification_wigosid,
     meta_broker,meta_topic,meta_received_datetime) VALUES %s"""
 
-while True:
+DONE = False
+
+def shutdown_gracefully(signum, stackframe):
+    logging.info("shutdown initiated")
+    global DONE
+    DONE = True
+
+signal.signal(signal.SIGINT, shutdown_gracefully)
+signal.signal(signal.SIGTERM, shutdown_gracefully)
+
+
+while not DONE:
      
     #msg = consumer.poll(timeout_ms=poll_timeout_seconds*1000) # wait for messages 
 
@@ -107,7 +125,8 @@ while True:
 
         execute_values(conn.cursor(), sql_insert, values)
         conn.commit()
-            
+
+        NR_RECORDS_COMMITTED.inc(len(values))    
         logging.debug("added %s records to the database", len(values))
 
 
@@ -117,3 +136,5 @@ while True:
         logging.debug("No new messages")
 
 
+logging.info("closing consumer")
+consumer.close()

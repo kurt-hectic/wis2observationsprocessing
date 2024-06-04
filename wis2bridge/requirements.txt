@@ -1,2 +1,3 @@
 confluent-kafka
 paho-mqtt
+prometheus-client

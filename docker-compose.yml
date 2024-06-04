@@ -28,8 +28,10 @@ services:
 
   zookeeper:
     image: 'bitnami/zookeeper:latest'
-    ports:
-      - '2181:2181'
+    #ports:
+    #  - '2181:2181'
+    expose:
+      - 2181
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
@@ -37,9 +39,13 @@ services:
     image: 'bitnami/kafka:latest'
     hostname: ${KAFKA_NAME}
     container_name: ${KAFKA_NAME}
-    ports:
-      - '${KAFKA_PORT}:${KAFKA_PORT}'
-      - '7071:7071'
+    #ports:
+    #  - '${KAFKA_PORT}:${KAFKA_PORT}'
+    #  - '7071:7071'
+    expose:
+      - ${KAFKA_PORT}
+      - 7071
+
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
@@ -60,6 +66,8 @@ services:
     build: wis2bridge/.
     volumes:
       - ./wis2bridge:/app
+    expose:
+      - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - TOPICS=cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop,cache/a/wis2/+/data/core/weather/surface-based-observations/synop
@@ -78,7 +86,7 @@ services:
       - CLIENT_ID=wis2bridge_test_
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
-
+      - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
@@ -87,15 +95,19 @@ services:
     build: notification-dedup/.
     volumes:
       - ./notification-dedup:/app
+    expose:
+      - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
+      - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
       - POLL_TIMEOUT_SEC=10
       - POLL_BATCH_SIZE=50
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
@@ -103,17 +115,21 @@ services:
   content-processor:
     build: content-processor/.
     volumes:
-      - ./content-processor:/app
+      - ./content-processor:/app   
+    expose:
+      - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_DEDUP}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_CONTENT}
+      - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
       - POLL_TIMEOUT_SEC=2
       - POLL_BATCH_SIZE=10
       - NR_THREADS=2
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
@@ -122,6 +138,8 @@ services:
     build: decoding-processor/.
     volumes:
       - ./decoding-processor:/app
+    expose:
+      - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_CONTENT}
@@ -131,6 +149,7 @@ services:
       - POLL_BATCH_SIZE=10
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
@@ -140,6 +159,8 @@ services:
     build: output-processor/.
     volumes:
       - ./output-processor:/app
+    expose:
+      - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_OUTPUT}
@@ -152,7 +173,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PW=${DB_PW}
       - DB_HOST_NAME=${DB_HOST_NAME}
-
+      - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
@@ -198,8 +219,6 @@ services:
       - NGINX_HOST=test-cache
       - FAIL_RATE=0.5
 
-
-
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -226,7 +245,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
-      - 'grafana_storage:/var/lib/grafana'
+    #  - 'grafana_storage:/var/lib/grafana'
 
 volumes:
   grafana_storage: {}

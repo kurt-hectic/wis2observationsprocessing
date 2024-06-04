@@ -14,6 +14,8 @@ import queue
 import paho.mqtt.client as mqtt_paho
 
 from confluent_kafka import Producer
+from prometheus_client import start_http_server, Counter
+
 from datetime import datetime
 from uuid import uuid4
 
@@ -46,6 +48,14 @@ threshold = int(os.getenv("REPORTING_THRESHOLD","100"))
 batch_size = int(os.getenv("BATCH_SIZE","10"))
 heartbeat_threshold = int(os.getenv("HEARTBEAT_THRESHOLD","300")) # send an update every 5 minutes
 
+
+# Prometheus metrics and server
+NR_EMPTY_MESSAGES = Counter('nr_emptymessages_total', 'Number of empty messages')    
+NR_MESSAGES_WITHOUT_DATAID = Counter('nr_messageswithoutdataid_total', 'Number of messages without data_id')
+NR_INVALID_JSON = Counter('nr_invalidjson_total', 'Number of messages with invalid JSON')
+NR_KAFKA_PUB_ERRORS = Counter('kafka_publish_errors_total', 'Number of kafka publish errors')
+
+t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
 
 #logging.debug(f"from file {cert_text}")
 
@@ -88,11 +98,13 @@ def message_routing(client,topic,msg):
     
     # insert metadata into the message
     if not msg or msg.isspace():
+        NR_EMPTY_MESSAGES.inc()
         logging.debug("discarding empty message published on %s", topic)
         return
     try:
         msg = json.loads(msg)
     except json.JSONDecodeError as e:
+        NR_INVALID_JSON.inc()
         logging.error("cannot parse json message %s , %s , %s",msg,e,topic)
         return    
 
@@ -101,6 +113,7 @@ def message_routing(client,topic,msg):
         if not "properties" in msg:
             msg["properties"] = {}
         msg["properties"] = { "data_id" : str(uuid4()) }
+        NR_MESSAGES_WITHOUT_DATAID.inc()
         logging.warning("no data_id in message, adding %s",msg["properties"]["data_id"])
 
     msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
@@ -141,6 +154,7 @@ def delivery_report(err, msg):
     """ Called once for each message produced to indicate delivery result.
         Triggered by poll() or flush(). """
     if err is not None:
+        NR_KAFKA_PUB_ERRORS.inc()
         logging.error('Message delivery failed: {}'.format(err))
     else:
         logging.debug('Message delivered to %s [%s]', msg.topic() , msg.partition())
