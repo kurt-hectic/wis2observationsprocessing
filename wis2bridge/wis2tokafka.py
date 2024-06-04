@@ -254,6 +254,8 @@ class ConsumerThread(threading.Thread):
                 
             else: 
                 time.sleep(0.01)
+        
+        self.producer.flush()
         logging.info('Consumer Thread #%s stopped', self.ident)
         return
 
@@ -281,10 +283,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, service_shutdown)
     
     try:
-    
         c = ConsumerThread(name='consumer')
         c.start()
-        
           
         logging.info("creating connection to WIS2")
         client_wis2 = create_wis2_connection()

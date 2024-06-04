@@ -5,13 +5,21 @@ FROM python:3.9
 WORKDIR /app
 
 # Copy the requirements.txt file to the container
-COPY requirements.txt .
+COPY notification-dedup/requirements.txt .
+COPY notification-dedup/wis2-notification-message-bundled.json .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy libs
+COPY lib/baseprocessor.py /app/
+
 # Copy the rest of the application code to the container
-COPY . .
+
+COPY notification-dedup/app.py .
+
+COPY docker-entrypoint.sh /app/
+COPY wait-for-it.sh /app/
 
 RUN chmod +xr ./wait-for-it.sh ./docker-entrypoint.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -92,9 +92,12 @@ services:
     tty: true
 
   notification-dedup:
-    build: notification-dedup/.
-    volumes:
-      - ./notification-dedup:/app
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-notification-dedup
+    
+    #volumes:
+    #  - ./notification-dedup:/app
     expose:
       - ${METRIC_PORT}
     environment:
@@ -113,9 +116,11 @@ services:
     tty: true
 
   content-processor:
-    build: content-processor/.
-    volumes:
-      - ./content-processor:/app   
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-content-processor
+    #volumes:
+    #  - ./content-processor:/app   
     expose:
       - ${METRIC_PORT}
     environment:
@@ -135,9 +140,11 @@ services:
     tty: true
 
   decoding-processor:
-    build: decoding-processor/.
-    volumes:
-      - ./decoding-processor:/app
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-decoding-processor
+    #volumes:
+    #  - ./decoding-processor:/app
     expose:
       - ${METRIC_PORT}
     environment:
@@ -156,9 +163,11 @@ services:
 
 
   output-processor:
-    build: output-processor/.
-    volumes:
-      - ./output-processor:/app
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-output-processor
+    #volumes:
+    #  - ./output-processor:/app
     expose:
       - ${METRIC_PORT}
     environment:
