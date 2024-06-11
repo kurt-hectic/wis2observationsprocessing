@@ -81,7 +81,7 @@ class BaseProcessor(ABC):
                     )
 
                 if len(error_messages)>0:
-                    logging.warning("publishing %s error messages to %s", len(error_messages), kafka_error_topic )
+                    logging.info("publishing %s error messages to %s", len(error_messages), kafka_error_topic )
                     for error_message in error_messages:
                         self.producer.produce(
                             topic=kafka_error_topic,

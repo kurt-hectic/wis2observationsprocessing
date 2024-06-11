@@ -15,6 +15,7 @@ with warnings.catch_warnings():
 log_level = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(log_level)
 
+logging.getLogger('bufr2geojson').setLevel(logging.WARNING)
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
     handlers=[  logging.StreamHandler()] )

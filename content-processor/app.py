@@ -24,20 +24,9 @@ ingegrity_methods =  [ "sha256", "sha384", "sha512", "sha3-256", "sha3-384", "sh
 NR_INTEGRITY_ERRORS = Counter('integrity_errors_total', 'Number of integrity errors')
 NR_CONTENT_ERRORS = Counter('content_fetching_errors_total', 'Number of content fetching errors')
 DOWNLOAD_LATENCY = Summary('download_latency_seconds', 'Time spent downloading content')
+CACHE_RELIABILITY = Summary('cache_reliability', 'Cache reliability')
 
-@NR_CONTENT_ERRORS.count_exceptions()
-def handle_content(notification):
-        url = [ l["href"] for l in notification["links"] if l["rel"] == "canonical" ][0]
-        resp = session.request("GET",url, timeout=4)
-        resp.raise_for_status()
-        logging.debug("downloaded {} in {}".format(url,resp.elapsed))
-        download_time=resp.elapsed.total_seconds()*1000
-        parsed_url = urllib.parse.urlparse(url)
-        cache = parsed_url.netloc
 
-        DOWNLOAD_LATENCY.observe(download_time)
-
-        return resp.content, download_time, cache
 
 def decode_content(content):
 
@@ -54,25 +43,6 @@ def decode_content(content):
     
     return content_value
 
-def content_check(notification):
-    if not "content" in notification["properties"]:
-        try:
-            content, download_time, cache = handle_content(notification)
-        except requests.exceptions.HTTPError as e:
-            logging.error(f"could not download content for {notification['properties']['data_id']} {e} ")
-            return False
-        except Exception as e:
-            logging.error(f"could not download content for {notification['properties']['data_id']}")
-            # TODO: process error in context of Kafka
-            return False
-
-        notification["properties"]["content"] = {
-            "encoding": "base64",
-            "value": base64.b64encode(content).decode("utf-8") ,
-            "size": len(content)
-        }
-
-    return notification
     
 
 def integrity_check(notification):
@@ -99,8 +69,58 @@ def integrity_check(notification):
 
 class ContentProcessor(BaseProcessor):
      
+    session = None
+
     def __init__(self):
         BaseProcessor.__init__(self,group_id="my-consumer-content-1")
+
+        self.session = requests.Session()
+    
+    def content_check(self,notification):
+        if not "content" in notification["properties"]:
+            try:
+                content, download_time, cache = self.handle_content(notification)
+            except Exception as e:
+                logging.error(f"could not download content for {notification['properties']['data_id']} {e}")
+                # TODO: process error in context of Kafka
+                return False
+
+            notification["properties"]["content"] = {
+                "encoding": "base64",
+                "value": base64.b64encode(content).decode("utf-8") ,
+                "size": len(content)
+            }
+
+        return notification
+    
+    def handle_content(self,notification):
+        
+        for i,url in enumerate(notification["_meta"]["cache_links"]):
+            try:
+                resp = self.session.get(url, timeout=10)
+                resp.raise_for_status()
+
+                logging.debug("downloaded {} in {}".format(url,resp.elapsed))
+                download_time=resp.elapsed.total_seconds()*1000
+                parsed_url = urllib.parse.urlparse(url)
+                cache = parsed_url.netloc
+
+                DOWNLOAD_LATENCY.observe(download_time)
+
+
+                if i>0:
+                    logging.info("downloaded data_id {} from cache link {} after trying {} other links".format(notification["properties"]["data_id"],url,i))
+
+                CACHE_RELIABILITY.observe(i+1)
+                return resp.content, download_time, cache
+
+            except Exception as e:
+                logging.info("could not download data_id {} from cache link {}. {}".format(notification["properties"]["data_id"],url,e))
+                NR_CONTENT_ERRORS.inc()
+
+        raise Exception(f"data not evailable from from any cache links " + ",".join(notification["_meta"]["cache_links"]) )
+        # TODO: configure download process to use the chache as partition key?
+
 
 
     def __process_messages__(self,notifications):
@@ -109,11 +129,11 @@ class ContentProcessor(BaseProcessor):
         logging.debug(f"{initial_length} new messages")
 
         # download content for each notification if not included
-        notifications =  [ n for n in [ content_check(notification) for notification in notifications ] if n ]
+        notifications =  [ n for n in [ self.content_check(notification) for notification in notifications ] if n ]
         nr_with_content = len(notifications)
         logging.debug("number of notifications with content %s", nr_with_content)
         if initial_length-nr_with_content > 0:
-            logging.warning("removed %s because of no content",initial_length-nr_with_content)
+            logging.error("removed %s because of no content",initial_length-nr_with_content)
 
         # validate content checksum and length
         error_messages = []
@@ -128,7 +148,7 @@ class ContentProcessor(BaseProcessor):
         logging.debug("number of notifications with correct integrity and length %s",nr_with_ingegrity)
         if len(error_messages)>0:
             NR_INTEGRITY_ERRORS.inc(len(error_messages))
-            logging.warning("removed %s because of integrity or length",len(error_messages))
+            logging.error("removed %s because of integrity or length",len(error_messages))
 
         keys = [n["properties"]["data_id"] for n in notifications]
 

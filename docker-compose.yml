@@ -26,6 +26,17 @@ services:
       POSTGRES_PASSWORD: ${DB_PW}
       POSTGRES_DB: ${DB_NAME}
 
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PW}@db:5432/${DB_NAME}?sslmode=disable"
+    links:
+      - db
+      - prometheus
+
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     #ports:
@@ -209,6 +220,9 @@ services:
     working_dir: /app
     command: bash publoop.sh
 
+    environment:
+      - SLEEPRATE=0.1
+
     depends_on:
       - mosquitto
 
@@ -227,6 +241,12 @@ services:
     environment:
       - NGINX_HOST=test-cache
       - FAIL_RATE=0.5
+
+    networks:
+      default:
+        aliases:
+          - test-cache-2
+          - test-cache-3
 
   prometheus:
     image: prom/prometheus
