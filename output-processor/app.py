@@ -57,12 +57,12 @@ class OutputProcessor(BaseProcessor):
         BaseProcessor.__init__(self,group_id="my-consumer-output-1")
 
         # database connection
-        logging.info("establishing db connection")
-        dbname = os.getenv("DB_NAME")
-        dbuser = os.getenv("DB_USER")
-        dbpw = os.getenv("DB_PW")
-        dbhost = os.getenv("DB_HOST_NAME")
-        self.conn = psycopg2.connect(f"dbname={dbname} user={dbuser} password={dbpw} host={dbhost}")
+        # logging.info("establishing db connection")
+        # dbname = os.getenv("DB_NAME")
+        # dbuser = os.getenv("DB_USER")
+        # dbpw = os.getenv("DB_PW")
+        # dbhost = os.getenv("DB_HOST_NAME")
+        # self.conn = psycopg2.connect(f"dbname={dbname} user={dbuser} password={dbpw} host={dbhost}")
 
 
 
@@ -73,6 +73,7 @@ class OutputProcessor(BaseProcessor):
         logging.debug(f"{initial_length} new messages")
 
         values = []
+        keys = []
         for i,observation in enumerate(observations):
             
             try:
@@ -94,22 +95,45 @@ class OutputProcessor(BaseProcessor):
                 meta_time_received = jq_meta_timereceived.input(observation).first()
                 meta_broker = jq_meta_broker.input(observation).first()
 
-                tpl = (wigosid,result_time,phenomenon_time,lat,lon,alt,observed_property,observed_value,observed_unit,ndataid,npubtime,ndatetime,nwigosid,meta_broker,meta_topic,meta_time_received)
+                #tpl = (wigosid,result_time,phenomenon_time,lat,lon,alt,observed_property,observed_value,observed_unit,ndataid,npubtime,ndatetime,nwigosid,meta_broker,meta_topic,meta_time_received)
 
-                values.append(tpl)
+                d = { "wigos_id": wigosid,
+                     "result_time":result_time,
+                     "phenomenon_time": phenomenon_time,
+                     "latitude":lat,
+                     "longitude":lon,
+                     "altitude":alt,
+                     "observed_property":observed_property,
+                     "observed_value":observed_value,
+                     "observed_unit":observed_unit,
+                     "notification_data_id":ndataid,
+                     "notification_pubtime":npubtime,
+                     "notification_datetime":ndatetime,
+                     "notification_wigos_id":nwigosid,
+                     "meta_broker":meta_broker,
+                     "meta_topic":meta_topic,
+                     "meta_time_received":meta_time_received}
+
+                key = f"{wigosid}-{ndataid}-{result_time}"
+
+                #values.append(tpl)
+                values.append(d)
+                keys.append(key)
+
+                logging.debug(f"processed observation {d}")
 
             except Exception as e:
                 NR_RECORDS_NOT_PARSED.inc()
                 logging.error(f"error processing observation: {observation}. Error: {e}")
 
-        execute_values(self.conn.cursor(), sql_insert, values)
-        self.conn.commit()
+        #execute_values(self.conn.cursor(), sql_insert, values)
+        #self.conn.commit()
 
-        NR_RECORDS_COMMITTED.inc(len(values))    
-        logging.debug("added %s records to the database", len(values))
+        #NR_RECORDS_COMMITTED.inc(len(values))    
+        #logging.debug("added %s records to the database", len(values))
 
 
-        return [],[],[]
+        return values,keys,[]
     
 
 

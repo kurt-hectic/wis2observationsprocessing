@@ -25,9 +25,17 @@ scrape_configs:
   static_configs:
     - targets: ['kafka:7071']
 
-- job_name: postgres-exporter
+#- job_name: postgres-exporter
+#  static_configs:
+#    - targets: ["postgres-exporter:9187"]
+
+- job_name: 'hiveserver2'
   static_configs:
-    - targets: ["postgres-exporter:9187"]
+    - targets: ['hiveserver2:7071']
+
+- job_name: 'metastore'
+  static_configs:
+    - targets: ['metastore:7071']
 
 - job_name: 'wis2bridge'
   static_configs:
