@@ -1,0 +1,103 @@
+{
+    "tableName": "notifications-tostorage",
+    "schemaName": "default",
+    "topicName": "notifications-tostorage",
+    "key": {
+        "dataFormat": "raw",
+        "fields": [
+            {
+                "name": "kafka_key",
+                "dataFormat": "LONG",
+                "type": "BIGINT",
+                "hidden": "false"
+            }
+        ]
+    },
+    "message": {
+        "dataFormat": "json",
+        "fields": [
+            {
+                "name": "wigos_id",
+                "mapping": "wigos_id",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "result_time",
+                "mapping": "result_time",
+                "type": "TIMESTAMP",
+                "dataFormat": "iso8601"
+            },
+            {
+                "name": "phenomenon_time",
+                "mapping": "phenomenon_time",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "latitude",
+                "mapping": "latitude",
+                "type": "DOUBLE"
+            },
+            {
+                "name": "longitude",
+                "mapping": "longitude",
+                "type": "DOUBLE"
+            },
+            {
+                "name": "altitude",
+                "mapping": "altitude",
+                "type": "DOUBLE"
+            },
+            {
+                "name": "observed_property",
+                "mapping": "observed_property",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "observed_value",
+                "mapping": "observed_value",
+                "type": "DOUBLE"
+            },
+            {
+                "name" : "observed_unit",
+                "mapping": "observed_unit",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "notification_data_id",
+                "mapping": "notification_data_id",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "notification_pubtime",
+                "mapping": "notification_pubtime",
+                "type": "TIMESTAMP",
+                "dataFormat": "iso8601"
+
+            },
+            {
+                "name" : "notification_wigos_id",
+                "mapping": "notification_wigos_id",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_broker",
+                "mapping": "meta_broker",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_topic",
+                "mapping": "meta_topic",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_time_received",
+                "mapping": "meta_time_received",
+                "type": "TIMESTAMP",
+                "dataFormat": "iso8601"
+
+            }
+
+            
+        ]
+    }
+}

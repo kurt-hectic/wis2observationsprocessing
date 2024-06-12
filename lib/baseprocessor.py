@@ -57,7 +57,7 @@ class BaseProcessor(ABC):
 
         if kafka_pubtopic_name:
             self.producer = Producer({'bootstrap.servers': kafka_broker})
-            logging.info("created producer")
+            logging.info("created producer. Publishing to %s", kafka_pubtopic_name)
 
         self.t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
 
@@ -79,6 +79,8 @@ class BaseProcessor(ABC):
                         key=keys[i],
                         callback=self.delivery_report
                     )
+                logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name)
+
 
                 if len(error_messages)>0:
                     logging.info("publishing %s error messages to %s", len(error_messages), kafka_error_topic )

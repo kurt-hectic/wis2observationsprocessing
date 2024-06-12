@@ -4,6 +4,9 @@ import logging
 import jq
 import psycopg2
 import signal
+from datetime import datetime
+from dateutil import parser as isoparser
+
 
 from psycopg2.extras import execute_values
 from baseprocessor import BaseProcessor
@@ -64,6 +67,12 @@ class OutputProcessor(BaseProcessor):
         # dbhost = os.getenv("DB_HOST_NAME")
         # self.conn = psycopg2.connect(f"dbname={dbname} user={dbuser} password={dbpw} host={dbhost}")
 
+    def __format_datetime(self,datestr):
+        try:
+            return isoparser.isoparse(datestr).replace(microsecond=0).isoformat()
+        except Exception as e:
+            logging.error(f"error formatting date {datestr}. Error: {e}")
+            raise e
 
 
     def __process_messages__(self,observations):
@@ -98,7 +107,7 @@ class OutputProcessor(BaseProcessor):
                 #tpl = (wigosid,result_time,phenomenon_time,lat,lon,alt,observed_property,observed_value,observed_unit,ndataid,npubtime,ndatetime,nwigosid,meta_broker,meta_topic,meta_time_received)
 
                 d = { "wigos_id": wigosid,
-                     "result_time":result_time,
+                     "result_time": self.__format_datetime(result_time),
                      "phenomenon_time": phenomenon_time,
                      "latitude":lat,
                      "longitude":lon,
@@ -107,12 +116,12 @@ class OutputProcessor(BaseProcessor):
                      "observed_value":observed_value,
                      "observed_unit":observed_unit,
                      "notification_data_id":ndataid,
-                     "notification_pubtime":npubtime,
+                     "notification_pubtime":self.__format_datetime(npubtime),
                      "notification_datetime":ndatetime,
                      "notification_wigos_id":nwigosid,
                      "meta_broker":meta_broker,
                      "meta_topic":meta_topic,
-                     "meta_time_received":meta_time_received}
+                     "meta_time_received":self.__format_datetime(meta_time_received)}
 
                 key = f"{wigosid}-{ndataid}-{result_time}"
 

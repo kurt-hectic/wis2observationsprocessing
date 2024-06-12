@@ -16,7 +16,7 @@ import paho.mqtt.client as mqtt_paho
 from confluent_kafka import Producer
 from prometheus_client import start_http_server, Counter
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -116,7 +116,7 @@ def message_routing(client,topic,msg):
         NR_MESSAGES_WITHOUT_DATAID.inc()
         logging.warning("no data_id in message, adding %s",msg["properties"]["data_id"])
 
-    msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
+    msg["_meta"] = { "time_received" : datetime.now(tz=timezone.utc).isoformat() , "broker" : wis_broker_host , "topic" : topic }
     
     logging.debug("queuing topic %s with length %s and %s",topic,len(msg),msg)
     q.put( (topic,msg) )

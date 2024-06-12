@@ -2,3 +2,4 @@ confluent-kafka
 jq
 psycopg2-binary
 prometheus-client
+python-dateutil

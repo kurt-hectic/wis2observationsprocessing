@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS kafka_table;
 
--- 'wigos_id': '0-840-0-KHLG', 'result_time': '2024-05-29T08:40:00Z', 'phenomenon_time': '2024-05-29T08:40:00Z', 'latitude': -80.64444, 'longitude': 40.17028, 'altitude': 363.9, 'observed_property': 'air_temperature', 'observed_value': 12.2, 'observed_unit': 'Celsius', 'notification_data_id': 'us-noaa-synoptic/data/core/weather/surface-based-observations/synop/WIGOS_0-840-0-KHLG_20240529T084000', 'notification_pubtime': '2024-05-29T08:45:07Z', 'notification_datetime': '2024-05-29T08:40:00Z', 'notification_wigos_id': '0-840-0-KHLG', 'meta_broker': 'mosquitto', 'meta_topic': 'cache/a/wis2/us-noaa-synoptic/data/core/weather/surface-based-observations/synop', 
+-- 'wigos_id': '0-840-0-KHLG', 'result_time': '2024-05-29T08:40:00Z', 'phenomenon_time': '2024-05-29T08:40:00Z', 'latitude': -80.64444, 'longitude': 40.17028, 'altitude': 363.9, 'observed_property': 'air_temperature', 'observed_value': 12.2, 'observed_unit': 'Celsius', 'notification_data_id': 'us-noaa-synoptic/data/core/weather/surface-based-observations/synop/WIGOS_0-840-0-KHLG_20240529T084000', 
+-- 'notification_pubtime': '2024-05-29T08:45:07Z', 'notification_datetime': '2024-05-29T08:40:00Z', 'notification_wigos_id': '0-840-0-KHLG', 'meta_broker': 'mosquitto', 'meta_topic': 'cache/a/wis2/us-noaa-synoptic/data/core/weather/surface-based-observations/synop', 
 -- 'meta_time_received': '2024-06-11T16:31:03.606181'}
 
 CREATE EXTERNAL TABLE IF NOT EXISTS
