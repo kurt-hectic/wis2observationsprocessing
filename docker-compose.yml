@@ -6,6 +6,7 @@ services:
 
   zookeeper:
     image: 'bitnami/zookeeper:latest'
+    container_name: zookeeper
     #ports:
     #  - '2181:2181'
     expose:
@@ -102,10 +103,28 @@ services:
     volumes:
       - ./jmx-exporter/jmx_prometheus_javaagent-1.0.1.jar:/opt/hive/jmx-prometheus-javaagent-1.0.1.jar
       - ./jmx-exporter/hiveserver_jmx_exporter.yml:/opt/hive/jmx-exporter-config.yml
+      - ./hive:/opt/hive-etl
       - warehouse:/opt/hive/data/warehouse
+      - /home/hive/.beeline/
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "@every 1m"
+      ofelia.job-exec.datecron.command: "cat /opt/hive-etl/etl.sql |  beeline -u 'jdbc:hive2://localhost:10000/'"
+
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: ofelia
+    depends_on:
+      - hiveserver2
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
 
   wis2bridge:
     build: wis2bridge/.
+    container_name: wis2bridge
     volumes:
       - ./wis2bridge:/app
     expose:
@@ -137,7 +156,7 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile-notification-dedup
-    
+    container_name: notification-dedup
     #volumes:
     #  - ./notification-dedup:/app
     expose:
@@ -161,6 +180,7 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile-content-processor
+    container_name: content-processor
     #volumes:
     #  - ./content-processor:/app   
     expose:
@@ -185,6 +205,7 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile-decoding-processor
+    container_name: decoding-processor
     #volumes:
     #  - ./decoding-processor:/app
     expose:
@@ -208,6 +229,7 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile-output-processor
+    container_name: output-processor
     #volumes:
     #  - ./output-processor:/app
     expose:
@@ -249,6 +271,7 @@ services:
     volumes:
       - ./test-node:/app
 
+    container_name: mqtt-producer
     working_dir: /app
     command: bash publoop.sh
 
@@ -263,6 +286,7 @@ services:
 
   test-cache:
     hostname: test-cache
+    container_name: test-cache
     image: nginx
     ports:
       - "8080:80"
