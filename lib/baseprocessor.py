@@ -57,7 +57,9 @@ class BaseProcessor(ABC):
 
         if kafka_pubtopic_name:
             self.producer = Producer({'bootstrap.servers': kafka_broker})
-            logging.info("created producer")
+            logging.info("created producer. Publishing to %s", kafka_pubtopic_name)
+
+      
 
         self.t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
 

@@ -1,41 +1,41 @@
 FROM
-  kafka_table ktable 
+  kafka.default."notifications-tostorage" ktable 
 JOIN 
-  kafka_table_offsets offset_table
+  postgresql.public."kafka_table_offsets" offset_table
 ON ( 
-    ktable.`__partition` = offset_table.`partition_id`
+    ktable._partitiokafka_partition_id = offset_table.kafka_partition_id
   AND 
-    ktable.`__offset` > offset_table.`max_offset`) 
+    ktable.kafka_table_offset > offset_table.max_kafka_table_offset) 
 INSERT INTO TABLE 
-  orc_observations_table 
+  minio.datalake.observations 
 SELECT 
-  `__partition`, 
-  `__offset`, 
-  `__timestamp`,
-  `wigos_id`,
-  `result_time`,
-  `phenomenon_time`,
-  `latitude`,
-  `longitude`,
-  `altitude`,
-  `observed_property`,
-  `observed_value`,
-  `observed_unit`,
-  `notification_data_id`,
-  `notification_pubtime`,
-  `notification_datetime`,
-  `notification_wigos_id`,
-  `meta_broker`,
-  `meta_topic`,
-  `meta_time_received`
+  "kafka_partition_id", 
+  "kafka_table_offset", 
+  "kafka_timestamp",
+  "wigos_id",
+  "result_time",
+  "phenomenon_time",
+  "latitude",
+  "longitude",
+  "altitude",
+  "observed_property",
+  "observed_value",
+  "observed_unit",
+  "notification_data_id",
+  "notification_pubtime",
+  "notification_datetime",
+  "notification_wigos_id",
+  "meta_broker",
+  "meta_topic",
+  "meta_time_received"
   
 INSERT OVERWRITE TABLE 
-  kafka_table_offsets 
+  postgresql.public. 
 SELECT
-  `__partition`, 
-  max(`__offset`), 
+  `kafka_partition_id`, 
+  max(`kafka_table_offset`), 
   CURRENT_TIMESTAMP 
 GROUP BY 
-  `__partition`, 
+  `kafka_partition_id`, 
   CURRENT_TIMESTAMP;
   

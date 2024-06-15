@@ -2,17 +2,6 @@
     "tableName": "notifications-tostorage",
     "schemaName": "default",
     "topicName": "notifications-tostorage",
-    "key": {
-        "dataFormat": "raw",
-        "fields": [
-            {
-                "name": "kafka_key",
-                "dataFormat": "LONG",
-                "type": "BIGINT",
-                "hidden": "false"
-            }
-        ]
-    },
     "message": {
         "dataFormat": "json",
         "fields": [
