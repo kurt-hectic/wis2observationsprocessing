@@ -83,7 +83,9 @@ services:
 
 
   hiveserver2:
-    image: apache/hive:${HIVE_VERSION}
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-hiveserver2
     depends_on:
       - metastore
     restart: unless-stopped
@@ -105,12 +107,13 @@ services:
       - ./jmx-exporter/hiveserver_jmx_exporter.yml:/opt/hive/jmx-exporter-config.yml
       - ./hive:/opt/hive-etl
       - warehouse:/opt/hive/data/warehouse
-      - /home/hive/.beeline/
+      #- /home/hive/.beeline/
 
     labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.datecron.schedule: "@every 1m"
-      ofelia.job-exec.datecron.command: "cat /opt/hive-etl/etl.sql |  beeline -u 'jdbc:hive2://localhost:10000/'"
+       ofelia.enabled: "true"
+       ofelia.job-exec.datecron.schedule: "@every 1m"
+       ofelia.job-exec.datecron.command: "/bin/sh /opt/hive-etl/etl.sh"
+       ofelia.job-exec.datecron.no-overlap : "true"
 
   ofelia:
     image: mcuadros/ofelia:latest

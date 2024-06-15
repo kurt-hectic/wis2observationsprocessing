@@ -79,6 +79,8 @@ class BaseProcessor(ABC):
                         key=keys[i],
                         callback=self.delivery_report
                     )
+                    self.producer.poll(0)
+
 
                 if len(error_messages)>0:
                     logging.info("publishing %s error messages to %s", len(error_messages), kafka_error_topic )
@@ -88,6 +90,7 @@ class BaseProcessor(ABC):
                             value=json.dumps(error_message),
                             callback=self.delivery_report
                         )
+                        self.producer.poll(0)
 
             else:
                 logging.debug("No new messages")
