@@ -1,10 +1,9 @@
 CREATE TABLE IF NOT EXISTS postgresql.public."kafka_table_offsets" AS (
-    SELECT
-    "_partition_id" as "kafka_partition_id", 
-    MIN("_partition_offset") - 1 as "max_kafka_table_offset", 
-    CURRENT_TIMESTAMP as "insert_time"
-    FROM 
-    kafka.default."notifications-tostorage" 
+    SELECT "_partition_id" as "kafka_partition_id", 
+    MIN("_partition_offset") - 1 as "kafka_partition_offset", 
+    CURRENT_TIMESTAMP as "insert_time",
+    'lower_bound' as "bound"
+    FROM  kafka.default."notifications-tostorage" 
     GROUP BY 
     "_partition_id", 
     CURRENT_TIMESTAMP 
@@ -15,9 +14,6 @@ WITH (location = 's3a://datalake/');
 
 CREATE TABLE IF NOT EXISTS minio.datalake.observations 
 ( 
-    "kafka_partition_id" int,
-    "kafka_table_offset" bigint,
-    "kafka_timestamp" timestamp,
     "wigos_id" varchar,
     "result_time" timestamp,
     "phenomenon_time" varchar,
@@ -35,6 +31,5 @@ CREATE TABLE IF NOT EXISTS minio.datalake.observations
     "meta_time_received" timestamp
 )
 WITH (
-    format = 'ORC',
-    external_location = 's3a://datalake/observations'
+    format = 'ORC'
 );

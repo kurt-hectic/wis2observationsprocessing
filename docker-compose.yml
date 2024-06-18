@@ -2,6 +2,15 @@ version: "3"
 services:
 
 
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: ofelia
+    depends_on:
+      - trino
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
   
 
   zookeeper:
@@ -69,6 +78,13 @@ services:
 #      - ./trino/etc:/usr/lib/trino/etc:ro
       - ./trino/etc:/etc/trino
       - ./trino/catalog:/etc/trino/catalog
+      - ./trino/etl.sql:/etl.sql
+      - ./trino/etl.sh:/etl.sh
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "@every 5m"
+      ofelia.job-exec.datecron.command: "/bin/bash /etl.sh" 
+  
 
   trino-init:
     image: "trinodb/trino:449"
@@ -76,19 +92,13 @@ services:
       - trino
     volumes:
       - ./trino/init.sql:/init.sql
+      - ./trino/init.sh:/init.sh
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      # blocks until trino is reachable
-      trino --server trino:8080 --execute 'SELECT 1'
-
-      echo -e 'Creating trino catalog'
-      cat /init.sql | trino --server trino:8080
-      # trino --server trino:8080 --execute 'CREATE CATALOG hive_catalog WITH (type = \'hive\', hive.metastore.uri = \'thrift://hive-metastore:9083\')'
-
-      echo -e 'Successfully created the following catalogs:'
-      trino --server trino:8080 --execute 'SHOW CATALOGS'
+      /bin/bash /init.sh
       "
+   
 
   postgres:
     ports:
@@ -192,16 +202,6 @@ services:
     depends_on:
       - minio
 
-  ofelia:
-    image: mcuadros/ofelia:latest
-    container_name: ofelia
-    #depends_on:
-    #  - hiveserver2
-    command: daemon --docker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      
-
   wis2bridge:
     build: wis2bridge/.
     container_name: wis2bridge
@@ -247,8 +247,8 @@ services:
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
       - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=10
-      - POLL_BATCH_SIZE=50
+      - POLL_TIMEOUT_SEC=60
+      - POLL_BATCH_SIZE=3000
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
@@ -271,8 +271,8 @@ services:
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_CONTENT}
       - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=2
-      - POLL_BATCH_SIZE=10
+      - POLL_TIMEOUT_SEC=10
+      - POLL_BATCH_SIZE=50
       - NR_THREADS=2
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
@@ -295,8 +295,8 @@ services:
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_CONTENT}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_OUTPUT}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=2
-      - POLL_BATCH_SIZE=10
+      - POLL_TIMEOUT_SEC=10
+      - POLL_BATCH_SIZE=50
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
@@ -319,8 +319,8 @@ services:
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_OUTPUT}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_TOSTORAGE}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=60
-      - POLL_BATCH_SIZE=500
+      - POLL_TIMEOUT_SEC=10
+      - POLL_BATCH_SIZE=50
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - DB_NAME=${DB_NAME}

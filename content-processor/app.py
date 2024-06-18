@@ -5,6 +5,8 @@ import base64
 import urllib
 import gzip
 import requests
+import random
+
 from requests import session
 
 from baseprocessor import BaseProcessor
@@ -95,7 +97,8 @@ class ContentProcessor(BaseProcessor):
     
     def handle_content(self,notification):
         
-        for i,url in enumerate(notification["_meta"]["cache_links"]):
+        # random shuffle to avoid always using the same cache
+        for i,url in enumerate(sorted(notification["_meta"]["cache_links"],key=lambda x: random.random())):
             try:
                 resp = self.session.get(url, timeout=10)
                 resp.raise_for_status()
