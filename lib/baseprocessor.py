@@ -82,6 +82,7 @@ class BaseProcessor(ABC):
                         callback=self.delivery_report
                     )
                     self.producer.poll(0)
+                logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
 
 
                 if len(error_messages)>0:
