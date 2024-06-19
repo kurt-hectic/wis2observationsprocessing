@@ -50,7 +50,7 @@ class BaseProcessor(ABC):
 
         self.consumer = Consumer({'bootstrap.servers': kafka_broker,
             'group.id': group_id ,
-            'enable.auto.commit' : True,
+            'enable.auto.commit' : False,
             'auto.offset.reset': 'earliest'})
         logging.info(f"subscribing to {kafka_topic_name}")
         self.consumer.subscribe([kafka_topic_name])
@@ -94,6 +94,9 @@ class BaseProcessor(ABC):
                             callback=self.delivery_report
                         )
                         self.producer.poll(0)
+
+                if len(messages)>0:
+                    self.consumer.commit(messages[-1],asynchronous=False) # commit the last message, 
 
             else:
                 logging.debug("No new messages")

@@ -6,6 +6,7 @@ import urllib
 import gzip
 import requests
 import random
+import jq
 
 from requests import session
 
@@ -17,6 +18,7 @@ from prometheus_client import  Counter, Summary
 log_level = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(log_level)
 
+jq_canonical_links = jq.compile('.links[] | select(.rel=="canonical").length')
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
     handlers=[  logging.StreamHandler()] )
@@ -55,8 +57,13 @@ def integrity_check(notification):
 
     content_bytes = decode_content(notification["properties"]["content"])
     
-    if len(content_bytes) != notification["properties"]["content"]["size"]:
-        raise Exception(f"content size mismatch for {notification['properties']['data_id']}")
+    con_size = notification["properties"]["content"]["size"]
+    if len(content_bytes) != con_size:
+        raise Exception(f"content size {len(content_bytes)} mismatch with size {con_size} provided in content element for {notification['properties']['data_id']}")
+    
+    can_size = jq_canonical_links.input(notification).first()
+    if len(content_bytes) != can_size :
+        raise Exception(f"content size {len(content_bytes)} mismatch with size {can_size} provided in link for {notification['properties']['data_id']}")
 
     h = hashlib.new(integrity_method)
     h.update(content_bytes)

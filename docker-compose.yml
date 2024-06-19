@@ -356,7 +356,18 @@ services:
     command: bash publoop.sh
 
     environment:
-      - SLEEPRATE=0.1
+      #- SLEEPRATE=0.1
+      - CONTENT_INTEGRATED_RATE=0.2 # % of messages should have the content included
+      - INTEGRITY_CHECKSUM_RATE=0.001 # % of messates should have wrong checksum
+      - INTEGRITY_LENGTH_CONTENT_RATE=0.001 # % of messages should have wrong lenght in content
+      - INTEGRITY_LENGTH_LINK_RATE=0.001 # % of messages should have wrong lenght in content
+      - INTEGRITY_SCHEMA_RATE=0.001 # % of messages with incorrect schema
+      - INTEGRITY_PUBDATE_RATE=0.001 # % of messages with non ISO pubdate
+      - NR_DUPLICATES_MAX=3
+      - NR_DUPLICATES_MIN=1
+      - DUPLICATE_MAX_DELAY_MS=1000
+      - NR_CACHES=3
+      - MSG_RATE=10 # messages per second
 
     depends_on:
       - mosquitto
@@ -383,6 +394,7 @@ services:
     networks:
       default:
         aliases:
+          - test-cache-1
           - test-cache-2
           - test-cache-3
 
@@ -421,4 +433,6 @@ volumes:
 
 #  prom_data:
 
+networks:
+  default:
     
