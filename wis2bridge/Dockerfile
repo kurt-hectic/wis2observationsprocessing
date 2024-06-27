@@ -6,6 +6,8 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY . .
-RUN chmod +xr ./wait-for-it.sh ./docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD [ "python", "wis2tokafka.py"]
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+COPY wait-for-it.sh /app/wait-for-it.sh
+RUN chmod +xr /app/wait-for-it.sh /app/docker-entrypoint.sh
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD [ "python", "/app/wis2tokafka.py"]
