@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: decoding-processor
+  name: decoding-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: decoding-processor
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: decoding-processor
+    spec:
+      containers:
+        - env:
+            - name: CUSTOMERS_HOST
+            - name: CUSTOMERS_PORT
+            - name: KAFKA_BROKER
+              value: ':'
+            - name: KAFKA_PUBTOPIC
+            - name: KAFKA_TOPIC
+            - name: LOG_LEVEL
+              value: INFO
+            - name: METRIC_PORT
+            - name: POLL_BATCH_SIZE
+              value: "50"
+            - name: POLL_TIMEOUT_SEC
+              value: "10"
+          image: decoding-processor
+          name: decoding-processor
+          ports:
+            - containerPort: 0
+          resources: {}
+          tty: true
+      restartPolicy: Always
+status: {}

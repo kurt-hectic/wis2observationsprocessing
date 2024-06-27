@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: trino-init
+  name: trino-init
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: trino-init
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: trino-init
+    spec:
+      containers:
+        - args:
+            - |2
+
+              /bin/bash /init.sh
+          command:
+            - /bin/sh
+            - -c
+          image: trinodb/trino:449
+          name: trino-init
+          resources: {}
+          volumeMounts:
+            - mountPath: /init.sql
+              name: trino-init-claim0
+            - mountPath: /init.sh
+              name: trino-init-claim1
+      restartPolicy: Always
+      volumes:
+        - name: trino-init-claim0
+          persistentVolumeClaim:
+            claimName: trino-init-claim0
+        - name: trino-init-claim1
+          persistentVolumeClaim:
+            claimName: trino-init-claim1
+status: {}

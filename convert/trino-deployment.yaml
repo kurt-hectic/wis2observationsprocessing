@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+    ofelia.enabled: "true"
+    ofelia.job-exec.datecron.command: /bin/bash /etl.sh
+    ofelia.job-exec.datecron.schedule: '@every 5m'
+  creationTimestamp: null
+  labels:
+    io.kompose.service: trino
+  name: trino
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: trino
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+        ofelia.enabled: "true"
+        ofelia.job-exec.datecron.command: /bin/bash /etl.sh
+        ofelia.job-exec.datecron.schedule: '@every 5m'
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: trino
+    spec:
+      containers:
+        - image: trinodb/trino:449
+          name: trino
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/trino
+              name: trino-claim0
+            - mountPath: /etc/trino/catalog
+              name: trino-claim1
+            - mountPath: /etl.sql
+              name: trino-claim2
+            - mountPath: /etl.sh
+              name: trino-claim3
+      restartPolicy: Always
+      volumes:
+        - name: trino-claim0
+          persistentVolumeClaim:
+            claimName: trino-claim0
+        - name: trino-claim1
+          persistentVolumeClaim:
+            claimName: trino-claim1
+        - name: trino-claim2
+          persistentVolumeClaim:
+            claimName: trino-claim2
+        - name: trino-claim3
+          persistentVolumeClaim:
+            claimName: trino-claim3
+status: {}

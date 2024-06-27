@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mc-job
+  name: mc-job
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mc-job
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: mc-job
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - |2
+
+              sleep 5;
+              /usr/bin/mc alias set myminio http://minio:9000 minio minio123 --insecure;
+              /usr/bin/mc mb --quiet myminio/datalake --insecure;
+          image: minio/mc
+          name: mc-job
+          resources: {}
+      restartPolicy: Always
+status: {}

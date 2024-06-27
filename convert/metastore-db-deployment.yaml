@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: metastore-db
+  name: metastore-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: metastore-db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: metastore-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: metastore
+            - name: POSTGRES_PASSWORD
+              value: hive
+            - name: POSTGRES_USER
+              value: hive
+          image: postgres:11
+          name: metastore_db
+          resources: {}
+      hostname: metastore_db
+      restartPolicy: Always
+status: {}

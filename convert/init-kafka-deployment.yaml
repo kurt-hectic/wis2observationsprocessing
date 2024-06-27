@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: init-kafka
+  name: init-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: init-kafka
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: init-kafka
+    spec:
+      containers:
+        - args:
+            - |2
+
+              # blocks until kafka is reachable
+              kafka-topics.sh --bootstrap-server :  --list
+
+              echo -e 'Creating kafka topics'
+              kafka-topics.sh --bootstrap-server : --create --if-not-exists --topic  --replication-factor 1 --partitions 1
+              kafka-topics.sh --bootstrap-server : --create --if-not-exists --topic  --replication-factor 1 --partitions 1
+              kafka-topics.sh --bootstrap-server : --create --if-not-exists --topic  --replication-factor 1 --partitions 1
+              kafka-topics.sh --bootstrap-server : --create --if-not-exists --topic  --replication-factor 1 --partitions 1
+              kafka-topics.sh --bootstrap-server : --create --if-not-exists --topic  --replication-factor 1 --partitions 1
+
+              echo -e 'Successfully created the following topics:'
+              kafka-topics.sh --bootstrap-server : --list
+          command:
+            - /bin/sh
+            - -c
+          image: bitnami/kafka:latest
+          name: init-kafka
+          resources: {}
+      restartPolicy: Always
+status: {}

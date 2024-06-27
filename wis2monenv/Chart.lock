@@ -1,0 +1,15 @@
+dependencies:
+- name: kafka
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 29.3.4
+- name: trino
+  repository: https://trinodb.github.io/charts
+  version: 0.24.0
+- name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 15.5.7
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 8.0.2
+digest: sha256:7faf3fa0ad07b2c3a8b2ba4d117677a2b311d439b485dcf48451f96968e3bb16
+generated: "2024-06-19T12:05:15.399904344Z"

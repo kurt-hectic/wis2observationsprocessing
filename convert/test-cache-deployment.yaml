@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: test-cache
+  name: test-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: test-cache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/default: "true"
+        io.kompose.service: test-cache
+    spec:
+      containers:
+        - env:
+            - name: FAIL_RATE
+              value: "0.5"
+            - name: NGINX_HOST
+              value: test-cache
+          image: nginx
+          name: test-cache
+          ports:
+            - containerPort: 0
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/nginx/njs/
+              name: test-cache-claim0
+              readOnly: true
+            - mountPath: /usr/share/nginx/html
+              name: test-cache-claim1
+            - mountPath: /etc/nginx/nginx.conf
+              name: test-cache-claim2
+      hostname: test-cache
+      restartPolicy: Always
+      volumes:
+        - name: test-cache-claim0
+          persistentVolumeClaim:
+            claimName: test-cache-claim0
+            readOnly: true
+        - name: test-cache-claim1
+          persistentVolumeClaim:
+            claimName: test-cache-claim1
+        - name: test-cache-claim2
+          persistentVolumeClaim:
+            claimName: test-cache-claim2
+status: {}

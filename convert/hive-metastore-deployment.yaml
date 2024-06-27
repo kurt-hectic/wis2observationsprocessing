@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: hive-metastore
+  name: hive-metastore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: hive-metastore
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: hive-metastore
+    spec:
+      containers:
+        - env:
+            - name: AZURE_ABFS_ACCESS_KEY
+            - name: AZURE_ABFS_OAUTH
+            - name: AZURE_ABFS_OAUTH_CLIENT_ID
+            - name: AZURE_ABFS_OAUTH_ENDPOINT
+            - name: AZURE_ABFS_OAUTH_SECRET
+            - name: AZURE_ABFS_OAUTH_TOKEN_PROVIDER
+            - name: AZURE_ABFS_STORAGE_ACCOUNT
+            - name: AZURE_ADL_CLIENT_ID
+            - name: AZURE_ADL_CREDENTIAL
+            - name: AZURE_ADL_REFRESH_URL
+            - name: AZURE_WASB_ACCESS_KEY
+            - name: AZURE_WASB_STORAGE_ACCOUNT
+            - name: GOOGLE_CLOUD_KEY_FILE_PATH
+            - name: HIVE_METASTORE_DRIVER
+              value: org.postgresql.Driver
+            - name: HIVE_METASTORE_JDBC_URL
+              value: jdbc:postgresql://metastore_db:5432/metastore
+            - name: HIVE_METASTORE_PASSWORD
+              value: hive
+            - name: HIVE_METASTORE_USER
+              value: hive
+            - name: HIVE_METASTORE_USERS_IN_ADMIN_ROLE
+              value: admin
+            - name: HIVE_METASTORE_WAREHOUSE_DIR
+              value: s3://datalake/
+            - name: REGION
+            - name: S3_ACCESS_KEY
+              value: minio
+            - name: S3_ENDPOINT
+              value: http://minio:9000
+            - name: S3_PATH_STYLE_ACCESS
+              value: "true"
+            - name: S3_SECRET_KEY
+              value: minio123
+          image: starburstdata/hive:3.1.2-e.18
+          name: hive-metastore
+          ports:
+            - containerPort: 9083
+          resources: {}
+      hostname: hive-metastore
+      restartPolicy: Always
+status: {}

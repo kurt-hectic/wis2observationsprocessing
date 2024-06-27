@@ -1,0 +1,13 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: wis2mon-cluster
+  region: eu-central-1
+
+managedNodeGroups:
+  - name: ng-2
+    instanceType: m5.xlarge
+    desiredCapacity: 4
+    volumeSize: 100
+    privateNetworking: true

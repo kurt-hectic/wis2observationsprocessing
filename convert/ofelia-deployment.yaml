@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ofelia
+  name: ofelia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ofelia
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: ofelia
+    spec:
+      containers:
+        - args:
+            - daemon
+            - --docker
+          image: mcuadros/ofelia:latest
+          name: ofelia
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: ofelia-claim0
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: ofelia-claim0
+          persistentVolumeClaim:
+            claimName: ofelia-claim0
+            readOnly: true
+status: {}

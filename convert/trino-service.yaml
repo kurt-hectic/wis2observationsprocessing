@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+    ofelia.enabled: "true"
+    ofelia.job-exec.datecron.command: /bin/bash /etl.sh
+    ofelia.job-exec.datecron.schedule: '@every 5m'
+  creationTimestamp: null
+  labels:
+    io.kompose.service: trino
+  name: trino
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: trino
+status:
+  loadBalancer: {}

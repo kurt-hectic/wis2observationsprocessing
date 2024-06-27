@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: output-processor
+  name: output-processor
+spec:
+  ports:
+    - name: "0"
+      port: 0
+      targetPort: 0
+  selector:
+    io.kompose.service: output-processor
+status:
+  loadBalancer: {}
