@@ -210,6 +210,7 @@ class ConsumerThread(threading.Thread):
                             key=msg["properties"]["data_id"],
                             on_delivery=delivery_report
                         )
+                        self.producer.poll(0)
 
                     except Exception as e:
                         logging.error(f"could not publish records to Kafka",exc_info=True)
