@@ -10,12 +10,24 @@ jobs:
         name: Check out code
 
       - uses: mr-smithers-excellent/docker-build-push@v6
-        name: Build & push Docker image
+        name: Build & push Docker WIS2Bridge image
         with:
           image: tproescholdt/wis2kafkabridge
           tags: v1, latest
           registry: docker.io
           dockerfile: wis2bridge/Dockerfile
           directory: wis2bridge/.
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+
+      - uses: mr-smithers-excellent/docker-build-push@v6
+        name: Build & push Docker notifications-dedup image
+        with:
+          image: tproescholdt/wis2obsproc-notification-dedup
+          tags: v1, latest
+          registry: docker.io
+          dockerfile: Dockerfile-notification-dedup
+          directory: .
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
