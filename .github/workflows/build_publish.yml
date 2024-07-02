@@ -13,7 +13,7 @@ jobs:
         name: Build & push Docker WIS2Bridge image
         with:
           image: tproescholdt/wis2kafkabridge
-          tags: v1, latest
+          #tags: v1, latest
           registry: docker.io
           dockerfile: wis2bridge/Dockerfile
           directory: wis2bridge/.
@@ -25,7 +25,7 @@ jobs:
         name: Build & push Docker notifications-dedup image
         with:
           image: tproescholdt/wis2obsproc-notification-dedup
-          tags: v1, latest
+          #tags: v1, latest
           registry: docker.io
           dockerfile: Dockerfile-notification-dedup
           directory: .
