@@ -48,7 +48,7 @@ jobs:
           image: tproescholdt/wis2obsproc-decoding-processor
           #tags: v1, latest
           registry: docker.io
-          dockerfile: Dockerfile-ecoding-processor
+          dockerfile: Dockerfile-decoding-processor
           directory: .
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
