@@ -235,7 +235,7 @@ services:
   validation-processor:
     build: 
       context: .
-      dockerfile: ./Dockerfile-validation
+      dockerfile: ./Dockerfile-validation-processor
     container_name: notification-validation
     #volumes:
     #  - ./notification-dedup:/app

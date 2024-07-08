@@ -1,4 +1,0 @@
-confluent-kafka
-requests
-prometheus-client
-jq

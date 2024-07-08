@@ -4,11 +4,9 @@ FROM python:3.9
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements.txt file to the container
-COPY output-processor/requirements.txt .
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir confluent-kafka jq prometheus-client python-dateutil
 
 # Copy libs
 COPY lib/baseprocessor.py /app/
