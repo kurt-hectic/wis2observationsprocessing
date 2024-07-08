@@ -1,17 +1,20 @@
+# Use the official Python base image
 FROM python:3.9 
 
 # Set the working directory in the container
 WORKDIR /app
 
+COPY validation-processor/wis2-notification-message-bundled.json .
+
 # Install the Python dependencies
-RUN pip install --no-cache-dir prometheus-client jq confluent-kafka
+RUN pip install --no-cache-dir jsonschema prometheus-client confluent-kafka
 
 # Copy libs
 COPY lib/baseprocessor.py /app/
 
 # Copy the rest of the application code to the container
 
-COPY notification-dedup/app.py .
+COPY validation-processor/app.py .
 
 COPY docker-entrypoint.sh /app/
 COPY wait-for-it.sh /app/

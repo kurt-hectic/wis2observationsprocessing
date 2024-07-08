@@ -1,4 +1,3 @@
 confluent-kafka
-jsonschema
 prometheus-client
 jq

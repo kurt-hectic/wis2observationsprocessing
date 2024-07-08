@@ -45,6 +45,11 @@ scrape_configs:
   static_configs:
     - targets: ['notification-dedup:8002']
 
+    
+- job_name: 'validation-processor'
+  static_configs:
+    - targets: ['notification-validation:8002']
+
 - job_name: 'content-processor'
   static_configs:
     - targets: ['content-processor:8002']
