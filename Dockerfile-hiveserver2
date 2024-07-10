@@ -1,6 +1,0 @@
-FROM apache/hive:4.0.0
-USER root
-RUN  mkdir -p /home/hive/
-RUN  chown hive:hive /home/hive/
-RUN  chmod ug+rwx /home/hive/ 
-USER hive

@@ -297,7 +297,7 @@ services:
       - LOG_LEVEL=INFO
       - POLL_TIMEOUT_SEC=10
       - POLL_BATCH_SIZE=50
-      - NR_THREADS=2
+      - NR_THREADS=5
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
@@ -382,12 +382,12 @@ services:
       - INTEGRITY_LENGTH_CONTENT_RATE=0.001 # % of messages should have wrong lenght in content
       - INTEGRITY_LENGTH_LINK_RATE=0.001 # % of messages should have wrong lenght in content
       - INTEGRITY_SCHEMA_RATE=0.001 # % of messages with incorrect schema
-      - INTEGRITY_PUBDATE_RATE=0.001 # % of messages with non ISO pubdate
+      - INTEGRITY_PUBDATE_RATE=0.01 # % of messages with non ISO pubdate
       - NR_DUPLICATES_MAX=3
       - NR_DUPLICATES_MIN=1
       - DUPLICATE_MAX_DELAY_MS=1000
       - NR_CACHES=3
-      - MSG_RATE=10 # messages per second
+      - MSG_RATE=100 # messages per second
 
     depends_on:
       - mosquitto

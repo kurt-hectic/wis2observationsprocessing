@@ -134,7 +134,7 @@ while not DONE:
 
         q.put( payload )
         
-        time.sleep(msg_rate / 60)
+        time.sleep(1 / msg_rate )
 
 
 q.join()

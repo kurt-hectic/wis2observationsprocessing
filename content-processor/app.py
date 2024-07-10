@@ -7,6 +7,8 @@ import gzip
 import requests
 import random
 import jq
+import threading
+import math
 
 from requests import session
 
@@ -15,6 +17,7 @@ from baseprocessor import BaseProcessor
 from prometheus_client import  Counter, Summary
 
 
+nr_threads = int(os.getenv("NR_THREADS", "1"))
 log_level = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(log_level)
 
@@ -76,6 +79,14 @@ def integrity_check(notification):
     
     return True
 
+def chunks(lst, nr_chunks):
+    """Yield successive n chunks from lst."""
+    chunk_size = math.ceil( len(lst) / nr_chunks )
+    if chunk_size == 0:
+        return []
+    for i in range(0, len(lst), chunk_size):
+        yield lst[i:i + chunk_size]
+
 class ContentProcessor(BaseProcessor):
      
     session = None
@@ -117,7 +128,6 @@ class ContentProcessor(BaseProcessor):
 
                 DOWNLOAD_LATENCY.observe(download_time)
 
-
                 if i>0:
                     logging.info("downloaded data_id {} from cache link {} after trying {} other links".format(notification["properties"]["data_id"],url,i))
 
@@ -132,6 +142,10 @@ class ContentProcessor(BaseProcessor):
         # TODO: configure download process to use the chache as partition key?
 
 
+    def __process_messages_thread__(self,notification_chunk,notifications):
+        for notification in notification_chunk:
+            notifications.append( self.content_check(notification) )
+
 
     def __process_messages__(self,notifications):
    
@@ -139,30 +153,50 @@ class ContentProcessor(BaseProcessor):
         logging.debug(f"{initial_length} new messages")
 
         # download content for each notification if not included
-        notifications =  [ n for n in [ self.content_check(notification) for notification in notifications ] if n ]
-        nr_with_content = len(notifications)
-        logging.debug("number of notifications with content %s", nr_with_content)
-        if initial_length-nr_with_content > 0:
-            logging.error("removed %s because of no content",initial_length-nr_with_content)
+        #notifications =  [ n for n in [ self.content_check(notification) for notification in notifications ] if n ]
 
-        # validate content checksum and length
-        error_messages = []
-        for i,n in enumerate(notifications):
-            try:
-                integrity_check(n)
-            except Exception as e:
-                error_messages.append({"reason" : "integrity error" , "detail" : str(e) , "data" : notifications.pop(i) })
-                logging.error(f"integrity error for {n['properties']['data_id']} {e}")
+        if len(notifications) > 0:
+            jobs = []
+            notifications_new = []
+            for chunk in chunks(notifications,nr_threads):
+                jobs.append(threading.Thread(target=self.__process_messages_thread__(chunk,notifications_new)))
 
-        nr_with_ingegrity = len(notifications)
-        logging.debug("number of notifications with correct integrity and length %s",nr_with_ingegrity)
-        if len(error_messages)>0:
-            NR_INTEGRITY_ERRORS.inc(len(error_messages))
-            logging.error("removed %s because of integrity or length",len(error_messages))
+            for j in jobs:
+                j.start()
 
-        keys = [n["properties"]["data_id"] for n in notifications]
+            logging.info(f"waiting for {len(jobs)} threads to finish")
+            
+            for j in jobs:
+                j.join()
 
-        return notifications,keys,error_messages
+            notifications = [ n for n in notifications_new if n ]
+
+            nr_with_content = len(notifications)
+            logging.debug("number of notifications with content %s", nr_with_content)
+            if initial_length-nr_with_content > 0:
+                logging.error("removed %s because of no content",initial_length-nr_with_content)
+
+            # validate content checksum and length
+            error_messages = []
+            for i,n in enumerate(notifications):
+                try:
+                    integrity_check(n)
+                except Exception as e:
+                    error_messages.append({"reason" : "integrity error" , "detail" : str(e) , "data" : notifications.pop(i) })
+                    logging.error(f"integrity error for {n['properties']['data_id']} {e}")
+
+            nr_with_ingegrity = len(notifications)
+            logging.debug("number of notifications with correct integrity and length %s",nr_with_ingegrity)
+            if len(error_messages)>0:
+                NR_INTEGRITY_ERRORS.inc(len(error_messages))
+                logging.error("removed %s because of integrity or length",len(error_messages))
+
+            keys = [n["properties"]["data_id"] for n in notifications]
+
+            return notifications,keys,error_messages
+        else:
+            return [],[],[]
+
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 # Use the official Python base image
-FROM python:3.9 
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -7,7 +7,7 @@ WORKDIR /app
 COPY validation-processor/wis2-notification-message-bundled.json .
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir jsonschema prometheus-client confluent-kafka
+RUN pip install --no-cache-dir jsonschema prometheus-client confluent-kafka python-dateutil jq
 
 # Copy libs
 COPY lib/baseprocessor.py /app/
