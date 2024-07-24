@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: metastore
+      POSTGRES_PASSWORD: metastore
+      POSTGRES_DB: metastore
+    ports:
+      - 5432:5432
+
+
+  metastore:
+    build: .
+    
+    environment:
+      AWS_ACCESS_KEY: ${AWS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET}
+      S3_ENDPOINT: https://s3.eu-central-1.amazonaws.com
+      S3_BUCKET: wis2obsprocessing/
+      S3_SSL_ENABLED: true
+      HIVE_HOST: localhost
+      HIVE_PORT: 9083
+      POSTGRES_DB: metastore
+      POSTGRES_USER: metastore
+      POSTGRES_PASSWORD: metastore
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
