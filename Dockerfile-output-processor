@@ -6,7 +6,7 @@ WORKDIR /app
 
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir confluent-kafka jq prometheus-client python-dateutil
+RUN pip install --no-cache-dir confluent-kafka==2.4.0 jq prometheus-client python-dateutil
 
 # Copy libs
 COPY lib/baseprocessor.py /app/
