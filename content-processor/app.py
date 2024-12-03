@@ -122,7 +122,7 @@ class ContentProcessor(BaseProcessor):
                 resp.raise_for_status()
 
                 logging.debug("downloaded {} in {}".format(url,resp.elapsed))
-                download_time=resp.elapsed.total_seconds()*1000
+                download_time=resp.elapsed.total_seconds()
                 parsed_url = urllib.parse.urlparse(url)
                 cache = parsed_url.netloc
 

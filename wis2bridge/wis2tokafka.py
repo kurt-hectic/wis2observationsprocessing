@@ -54,6 +54,7 @@ NR_EMPTY_MESSAGES = Counter('nr_emptymessages_total', 'Number of empty messages'
 NR_MESSAGES_WITHOUT_DATAID = Counter('nr_messageswithoutdataid_total', 'Number of messages without data_id')
 NR_INVALID_JSON = Counter('nr_invalidjson_total', 'Number of messages with invalid JSON')
 NR_KAFKA_PUB_ERRORS = Counter('kafka_publish_errors_total', 'Number of kafka publish errors')
+NR_PUBLISHED_MESSAGES = Counter('published_messages_total', 'Number of published messages to Kafka')
 
 t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
 
@@ -211,6 +212,7 @@ class ConsumerThread(threading.Thread):
                             on_delivery=delivery_report
                         )
                         self.producer.poll(0)
+                        NR_PUBLISHED_MESSAGES.inc()
 
                     except Exception as e:
                         logging.error(f"could not publish records to Kafka",exc_info=True)
