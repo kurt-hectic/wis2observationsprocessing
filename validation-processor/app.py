@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-import jq
+#import jq
 
 from baseprocessor import BaseProcessor
 
@@ -16,8 +16,8 @@ level = logging.getLevelName(log_level)
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
     handlers=[  logging.StreamHandler()] )
 
-jq_not_pubtime = jq.compile('.properties.pubtime')
-jq_not_datetime = jq.compile('.properties.datetime')
+#jq_not_pubtime = jq.compile('.properties.pubtime')
+#jq_not_datetime = jq.compile('.properties.datetime')
 
 
 class ValidationProcessor(BaseProcessor):
@@ -37,11 +37,10 @@ class ValidationProcessor(BaseProcessor):
     
     def __check_dates(self,notification):
         try:
-            for d_exp in [jq_not_pubtime, jq_not_datetime]:
-                v = d_exp.input(notification).first()
-                if v:
-                    isoparser.isoparse(v)
             
+            isoparser.isoparse(notification["properties"]["pubtime"])   
+            isoparser.isoparse(notification["properties"]["datetime"])   
+
             return True
         
         except Exception as e: 
@@ -57,9 +56,12 @@ class ValidationProcessor(BaseProcessor):
         logging.debug(f"{initial_length} new messages")
 
         # only accept valid notificatons 
-        notifications_new = [] 
+        notifications_valid = [] 
         for n in notifications:
-            (notifications_new if self.draft_202012_validator.is_valid(n) else error_messages).append(n)
+            if self.draft_202012_validator.is_valid(n):
+                notifications_valid.append(n)
+            else:
+                error_messages.append(n)
 
         if len(error_messages)>0:
             logging.warning("filtered out %s non-valid records inside one batch ", len(error_messages) )
@@ -68,13 +70,15 @@ class ValidationProcessor(BaseProcessor):
             for n in error_messages:
                 error_messages.append({"reason" : "non valid" , "data" : n })
 
-        notifications = notifications_new
-        notifications_new = []
+        notifications_valid_dates = []
         error_messages_date = []
 
         # check dates
-        for n in notifications:
-            (notifications_new if self.__check_dates(n) else error_messages_date).append(n)
+        for n in notifications_valid:
+            if self.__check_dates(n):
+                notifications_valid_dates.append(n)
+            else:
+                error_messages_date.append(n)
 
         if len(error_messages_date)>0:
             logging.warning("filtered out %s non-valid-date records inside one batch ", len(error_messages_date) )
@@ -83,11 +87,9 @@ class ValidationProcessor(BaseProcessor):
             for n in error_messages_date:
                 error_messages.append({"reason" : "date non valid" , "data" : n })
 
-        notifications = notifications_new
+        keys = [n["properties"]["data_id"] for n in notifications_valid_dates]
 
-        keys = [n["properties"]["data_id"] for n in notifications]
-
-        return notifications,keys,error_messages
+        return notifications_valid_dates, keys, error_messages + error_messages_date
 
 
 if __name__ == "__main__":
