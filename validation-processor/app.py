@@ -36,17 +36,15 @@ class ValidationProcessor(BaseProcessor):
 
     
     def __check_dates(self,notification):
-        try:
             
-            isoparser.isoparse(notification["properties"]["pubtime"])   
-            isoparser.isoparse(notification["properties"]["datetime"])   
+        for date_str in [notification["properties"]["pubtime"], notification["properties"]["datetime"]]:
+            try:
+                isoparser.isoparse(date_str)
+            except Exception as e: 
+                logging.info(f"error parsing {date_str} in notification {notification['id']}. Error: {e}")   
+                return False
 
-            return True
-        
-        except Exception as e: 
-            logging.info(f"error parsing date '{v}' in notification {notification['id']}. Error: {e}")   
-            return False
-        
+        return True
 
 
     def __process_messages__(self,notifications):
@@ -56,40 +54,42 @@ class ValidationProcessor(BaseProcessor):
         logging.debug(f"{initial_length} new messages")
 
         # only accept valid notificatons 
-        notifications_valid = [] 
+        notifications_valid = []
+        notifications_invalid = [] 
         for n in notifications:
             if self.draft_202012_validator.is_valid(n):
                 notifications_valid.append(n)
             else:
-                error_messages.append(n)
+                notifications_invalid.append(n)
 
-        if len(error_messages)>0:
-            logging.warning("filtered out %s non-valid records inside one batch ", len(error_messages) )
-            self.NR_INVALID_MESSAGES.inc(len(error_messages))
+        if len(notifications_invalid)>0:
+            logging.warning("filtered out %s non-valid records inside one batch ", len(notifications_invalid) )
+            self.NR_INVALID_MESSAGES.inc(len(notifications_invalid))
             # add non-valid messages to error list
-            for n in error_messages:
-                error_messages.append({"reason" : "non valid" , "data" : n })
+            for n in notifications_invalid:
+                error_messages.append({"reason" : "non valid schema" , "data" : n })
+
 
         notifications_valid_dates = []
-        error_messages_date = []
-
+        notifications_invalid_dates = []
+        
         # check dates
         for n in notifications_valid:
             if self.__check_dates(n):
                 notifications_valid_dates.append(n)
             else:
-                error_messages_date.append(n)
+                notifications_invalid_dates.append(n)
 
-        if len(error_messages_date)>0:
-            logging.warning("filtered out %s non-valid-date records inside one batch ", len(error_messages_date) )
-            self.NR_INVALID_DATE_MESSAGES.inc(len(error_messages_date))
+        if len(notifications_invalid_dates)>0:
+            logging.warning("filtered out %s non-valid-date records inside one batch ", len(notifications_invalid_dates) )
+            self.NR_INVALID_DATE_MESSAGES.inc(len(notifications_invalid_dates))
             # add non-valid messages to error list
-            for n in error_messages_date:
-                error_messages.append({"reason" : "date non valid" , "data" : n })
+            for n in notifications_invalid_dates:
+                error_messages.append({"reason" : "non valid date" , "data" : n })
 
         keys = [n["properties"]["data_id"] for n in notifications_valid_dates]
 
-        return notifications_valid_dates, keys, error_messages + error_messages_date
+        return notifications_valid_dates, keys, error_messages
 
 
 if __name__ == "__main__":
