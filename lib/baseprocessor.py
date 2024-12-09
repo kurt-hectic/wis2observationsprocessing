@@ -25,9 +25,10 @@ kafka_pubtopic_name = os.getenv("KAFKA_PUBTOPIC")
 kafka_broker = os.getenv("KAFKA_BROKER")
 kafka_error_topic = os.getenv("KAFKA_ERROR_TOPIC")
 
-NR_KAFKA_PUB_ERRORS = Counter('kafka_publish_errors_total', 'Number of kafka publish errors')
 NR_PROCESSING_ERRORS = Counter('processing_errors_total', 'Number of processing errors')
 NR_PROCESSED_MESSAGES = Counter('processed_messages_total', 'Number of processed messages')
+NR_PUBLISHED_MESSAGES = Counter('published_messages_total', 'Number of messages published to pubtopic')
+NR_KAFKA_PUB_ERRORS = Counter('kafka_publish_errors_total', 'Number of kafka publishing errors')
 
 class BaseProcessor(ABC):
 
@@ -82,7 +83,7 @@ class BaseProcessor(ABC):
                         callback=self.delivery_report
                     )
                     self.producer.poll(0)
-                    NR_PROCESSED_MESSAGES.inc()
+                    NR_PUBLISHED_MESSAGES.inc()
                 logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
 
 
@@ -99,6 +100,8 @@ class BaseProcessor(ABC):
 
                 if len(messages)>0:
                     self.consumer.commit(messages[-1],asynchronous=False) # commit the last message, 
+
+                NR_PROCESSED_MESSAGES.inc(len(messages)) # count all messages, even if they had errors
 
             else:
                 logging.debug("No new messages")

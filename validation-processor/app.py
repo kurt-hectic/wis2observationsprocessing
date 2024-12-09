@@ -41,7 +41,7 @@ class ValidationProcessor(BaseProcessor):
             try:
                 isoparser.isoparse(date_str)
             except Exception as e: 
-                logging.info(f"error parsing {date_str} in notification {notification['id']}. Error: {e}")   
+                logging.info(f"error parsing date \"{date_str}\" in notification {notification['id']}. Error: {e}")   
                 return False
 
         return True

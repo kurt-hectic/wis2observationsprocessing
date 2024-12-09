@@ -14,7 +14,7 @@ import queue
 import paho.mqtt.client as mqtt_paho
 
 from confluent_kafka import Producer
-from prometheus_client import start_http_server, Counter
+from prometheus_client import start_http_server, Counter, Gauge
 
 from datetime import datetime
 from uuid import uuid4
@@ -53,8 +53,12 @@ heartbeat_threshold = int(os.getenv("HEARTBEAT_THRESHOLD","300")) # send an upda
 NR_EMPTY_MESSAGES = Counter('nr_emptymessages_total', 'Number of empty messages')    
 NR_MESSAGES_WITHOUT_DATAID = Counter('nr_messageswithoutdataid_total', 'Number of messages without data_id')
 NR_INVALID_JSON = Counter('nr_invalidjson_total', 'Number of messages with invalid JSON')
+
 NR_KAFKA_PUB_ERRORS = Counter('kafka_publish_errors_total', 'Number of kafka publish errors')
+NR_PROCESSED_MESSAGES = Counter('processed_messages_total', 'Number of processed messages')
 NR_PUBLISHED_MESSAGES = Counter('published_messages_total', 'Number of published messages to Kafka')
+
+QUEUE_SIZE = Gauge('queue_size', 'Number of messages in the queue')
 
 t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
 
@@ -96,6 +100,8 @@ def message_routing(client,topic,msg):
     #logging.debug("message_routing")
     logging.debug("routing topic: %s",topic)
     logging.debug("routing message: %s ",msg)
+
+    NR_PROCESSED_MESSAGES.inc()
     
     # insert metadata into the message
     if not msg or msg.isspace():
@@ -171,9 +177,6 @@ class ConsumerThread(threading.Thread):
         self.name = name
         
         self.shutdown_flag = threading.Event()
-        #self.kinesis = boto3.client('kinesis')
-
-        #self.producer = KafkaProducer(bootstrap_servers="kafka:9092")
         self.producer = Producer({'bootstrap.servers': kafka_broker})
 
         logging.info("created Kafka connection")
@@ -182,12 +185,11 @@ class ConsumerThread(threading.Thread):
 
 
     def run(self):
-        counter = 0
-        #threshold = 100 
-        before = datetime.now()
-        #batch_size = 10
-
+        
         while not self.shutdown_flag.is_set():
+
+            QUEUE_SIZE.set(q.qsize())
+
             if not q.empty():
 
                 # batching items together
@@ -199,11 +201,7 @@ class ConsumerThread(threading.Thread):
                 
                 for (topic,msg) in records: #TODO we may not need this batching, since the producer also has a queue
                     try:
-                        # self.producer.send(
-                        #     topic=kafka_topic_name,
-                        #     value=json.dumps(msg).encode("utf-8"),
-                        #     key=msg["properties"]["data_id"].encode("utf-8")
-                        # )
+
 
                         self.producer.produce(
                             topic=kafka_topic_name,
@@ -223,37 +221,7 @@ class ConsumerThread(threading.Thread):
 
                     logging.debug("published %s records to Kafka",len(records))
 
-                counter = counter + len(records) - nr_failed
-
-                # processing of statistics
-                if counter > threshold:
-                    now = datetime.now()
-                    d = int(threshold / (now - before).total_seconds()  )
-                    logging.debug("receievd %s messages.. sending stats. Throughput %s per sec",threshold,d)
-
-                    try:
-                        data = [
-                                        {
-                                            'MetricName': 'notificationsReceivedFromBroker',
-                                            'Dimensions': [
-                                                {
-                                                    'Name': 'Broker',
-                                                    'Value': "obsdecoder_"+wis_broker_host
-                                                },
-                                            ],
-                                            'Unit': 'Count',
-                                            'Value':  counter
-                                        },
-                                    ]
-                        # response = cloud_watch.put_metric_data(
-                        #             MetricData = data,
-                        #             Namespace = 'WIS2monitoring'
-                        #         )
-                    except Exception as a:
-                        logging.error("could not publish stats %s ",e)
-
-                    counter = 0
-                    before = now
+  
                 
             else: 
                 time.sleep(0.01)
