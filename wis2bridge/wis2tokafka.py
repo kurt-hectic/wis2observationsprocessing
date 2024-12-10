@@ -210,7 +210,7 @@ class ConsumerThread(threading.Thread):
                             key=msg["properties"]["data_id"],
                             on_delivery=delivery_report
                         )
-                        #self.producer.poll(0)
+                        self.producer.poll(0)
                         NR_PUBLISHED_MESSAGES.inc()
 
                     except Exception as e:

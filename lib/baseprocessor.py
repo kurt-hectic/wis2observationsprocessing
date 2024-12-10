@@ -82,7 +82,7 @@ class BaseProcessor(ABC):
                         key=keys[i],
                         callback=self.delivery_report
                     )
-                    #self.producer.poll(0)
+                    self.producer.poll(0)
                     NR_PUBLISHED_MESSAGES.inc()
                 logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
 
@@ -95,7 +95,7 @@ class BaseProcessor(ABC):
                             value=json.dumps(error_message),
                             callback=self.delivery_report
                         )
-                        #self.producer.poll(0)
+                        self.producer.poll(0)
                         NR_PROCESSING_ERRORS.inc()
 
                 if len(messages)>0:
