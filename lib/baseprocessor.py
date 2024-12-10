@@ -52,8 +52,8 @@ class BaseProcessor(ABC):
 
         self.consumer = Consumer({'bootstrap.servers': kafka_broker,
             'group.id': group_id ,
-            'enable.auto.commit' : False,
-            'auto.offset.reset': 'earliest'})
+            'enable.auto.commit' : True,
+            'auto.offset.reset': 'latest'})
         logging.info(f"subscribing to {kafka_topic_name}")
         self.consumer.subscribe([kafka_topic_name])
 
@@ -82,7 +82,7 @@ class BaseProcessor(ABC):
                         key=keys[i],
                         callback=self.delivery_report
                     )
-                    self.producer.poll(0)
+                    #self.producer.poll(0)
                     NR_PUBLISHED_MESSAGES.inc()
                 logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
 
@@ -95,7 +95,7 @@ class BaseProcessor(ABC):
                             value=json.dumps(error_message),
                             callback=self.delivery_report
                         )
-                        self.producer.poll(0)
+                        #self.producer.poll(0)
                         NR_PROCESSING_ERRORS.inc()
 
                 if len(messages)>0:
