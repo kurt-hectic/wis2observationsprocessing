@@ -169,7 +169,7 @@ class ContentProcessor(BaseProcessor):
             for j in jobs:
                 j.join()
 
-            notifications = [ n for n in notifications_new if n ]
+            notifications = [ n for n in notifications_new if n ] # remove download errors represented by None values in the list 
 
             nr_with_content = len(notifications)
             logging.debug("number of notifications with content %s", nr_with_content)

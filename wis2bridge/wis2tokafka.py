@@ -92,7 +92,8 @@ def on_message(client, userdata, msg):
     message_routing(client,topic,m_decode)
     
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
-    logging.info("connection to broker has been lost")
+    if reason_code != 0:
+        logging.warning("disconnected with rc %s reconnecting",reason_code)
     client.connected_flag=False
     client.disconnect_flag=True
             
@@ -261,9 +262,11 @@ if __name__ == '__main__':
         client_wis2 = create_wis2_connection()
         logging.info("connected to WIS2")
 
-        client_wis2.loop_forever() #start loop
+        client_wis2.loop_forever(retry_first_connection=True) #start loop
         logging.info("exiting main thread")
         
     except Exception as e:
         logging.error("error, exiting",exc_info=True)
+        c.shutdown_flag.set()
+        c.join()
         sys.exit(1)
