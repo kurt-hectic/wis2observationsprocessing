@@ -22,8 +22,8 @@ logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level,
 NR_RECORDS_COMMITTED = Counter('records_committed_total', 'Number of records committed to the database')
 NR_RECORDS_NOT_PARSED = Counter('records_not_parsed_total', 'Number of records not parsed')
 
-jq_geometry = jq.compile('.data.geometry.coordinates')
-jq_wigosid = jq.compile('.data.properties.wigos_station_identifier')
+jq_geometry = jq.compile('.notification.geometry.coordinates')
+jq_wigosid = jq.compile('.notification.properties.wigos_station_identifier')
 
 jq_not_dataid = jq.compile('.notification.properties.data_id')
 jq_not_pubtime = jq.compile('.notification.properties.pubtime')
@@ -34,12 +34,12 @@ jq_meta_timereceived = jq.compile('.notification._meta.time_received')
 jq_meta_topic = jq.compile('.notification._meta.topic')
 jq_meta_broker = jq.compile('.notification._meta.broker')
 
-jq_observed_property = jq.compile('.data.properties.name')
-jq_observed_value = jq.compile('.data.properties.value')
-jq_observed_unit = jq.compile('.data.properties.units')
+jq_observed_property = jq.compile('.notification.properties.name')
+jq_observed_value = jq.compile('.notification.properties.value')
+jq_observed_unit = jq.compile('.notification.properties.units')
 
-jq_result_time = jq.compile('.data.properties.resultTime')
-jq_phenomenon_time = jq.compile('.data.properties.phenomenonTime')
+jq_result_time = jq.compile('.notification.properties.resultTime')
+jq_phenomenon_time = jq.compile('.notification.properties.phenomenonTime')
 
 
 class OutputProcessor(BaseProcessor):
@@ -50,11 +50,13 @@ class OutputProcessor(BaseProcessor):
         BaseProcessor.__init__(self,group_id="my-consumer-output-1")
 
     def __format_datetime(self,datestr):
+        if datestr is None or datestr == "":
+            return "NULL"
         try:
             return isoparser.isoparse(datestr).replace(microsecond=0).isoformat()
         except Exception as e:
             logging.error(f"error formatting date {datestr}. Error: {e}")
-            raise e
+            return "NULL"
 
 
     def __process_messages__(self,observations):
@@ -116,7 +118,7 @@ class OutputProcessor(BaseProcessor):
 
             except Exception as e:
                 NR_RECORDS_NOT_PARSED.inc()
-                logging.error(f"error processing observation: {observation}. Error: {e}")
+                logging.error(f"error processing observation: {observation}. Error: {e}",exc_info=True)
 
         #execute_values(self.conn.cursor(), sql_insert, values)
         #self.conn.commit()

@@ -159,14 +159,17 @@ class ContentProcessor(BaseProcessor):
             jobs = []
             notifications_new = []
             for chunk in chunks(notifications,nr_threads):
+                logging.debug(f"starting thread with {len(chunk)} notifications")
                 jobs.append(threading.Thread(target=self.__process_messages_thread__(chunk,notifications_new)))
 
-            for j in jobs:
+            for i,j in enumerate(jobs):
+                logging.debug(f"starting thread {i}")
                 j.start()
 
             logging.info(f"waiting for {len(jobs)} threads to finish")
             
-            for j in jobs:
+            for i,j in enumerate(jobs):
+                logging.debug(f"waiting for thread {i} to finish")
                 j.join()
 
             notifications = [ n for n in notifications_new if n ] # remove download errors represented by None values in the list 
