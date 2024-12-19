@@ -219,7 +219,8 @@ services:
       - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
-      - TOPICS=cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop,cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+      #- TOPICS=cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop,cache/a/wis2/+/data/core/weather/surface-based-observations/synop
+      - TOPICS=cache/#,origin/#
       #- WIS_BROKER_HOST=globalbroker.meteo.fr
       #- WIS_BROKER_PORT=8883
       #- VALIDATE_SSL=True 
@@ -230,12 +231,11 @@ services:
       - WIS_PASSWORD=everyone
       - LOG_LEVEL=INFO
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC}
-      - REPORTING_THRESHOLD=500
-      - BATCH_SIZE=50
       - CLIENT_ID=wis2bridge_test_
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
+      - ROUTING_FILE=/app/message-routing.json
     depends_on:
       - kafka
     tty: true
@@ -260,33 +260,35 @@ services:
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
+      - REMOVE_INVALID_MESSAGES=True
+      - REMOVE_DUPLICATE_MESSAGES=True
     depends_on:
       - kafka
     tty: true
 
-  notification-dedup:
-    build: 
-      context: .
-      dockerfile: ./Dockerfile-notification-dedup
-    container_name: notification-dedup
-    #volumes:
-    #  - ./notification-dedup:/app
-    expose:
-      - ${METRIC_PORT}
-    environment:
-      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
-      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_VALID}
-      - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
-      - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
-      - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=60
-      - POLL_BATCH_SIZE=3000
-      - CUSTOMERS_HOST=${KAFKA_NAME}
-      - CUSTOMERS_PORT=${KAFKA_PORT}
-      - METRIC_PORT=${METRIC_PORT}
-    depends_on:
-      - kafka
-    tty: true
+  # notification-dedup:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./Dockerfile-notification-dedup
+  #   container_name: notification-dedup
+  #   #volumes:
+  #   #  - ./notification-dedup:/app
+  #   expose:
+  #     - ${METRIC_PORT}
+  #   environment:
+  #     - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+  #     - KAFKA_TOPIC=${NOTIFICATION_TOPIC_VALID}
+  #     - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
+  #     - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
+  #     - LOG_LEVEL=INFO
+  #     - POLL_TIMEOUT_SEC=60
+  #     - POLL_BATCH_SIZE=3000
+  #     - CUSTOMERS_HOST=${KAFKA_NAME}
+  #     - CUSTOMERS_PORT=${KAFKA_PORT}
+  #     - METRIC_PORT=${METRIC_PORT}
+  #   depends_on:
+  #     - kafka
+  #   tty: true
 
   content-processor:
     build: 
@@ -299,13 +301,14 @@ services:
       - ${METRIC_PORT}
     environment:
       - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
-      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_DEDUP}
+      - KAFKA_TOPIC=${NOTIFICATION_TOPIC_VALID}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_CONTENT}
       - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
       - POLL_TIMEOUT_SEC=10
       - POLL_BATCH_SIZE=50
       - NR_THREADS=5
+      - REMOVE_NO_CONTENT=True
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
@@ -386,16 +389,16 @@ services:
     environment:
       #- SLEEPRATE=0.1
       - CONTENT_INTEGRATED_RATE=0.2 # % of messages should have the content included
-      - INTEGRITY_CHECKSUM_RATE=0.001 # % of messates should have wrong checksum
-      - INTEGRITY_LENGTH_CONTENT_RATE=0.001 # % of messages should have wrong lenght in content
-      - INTEGRITY_LENGTH_LINK_RATE=0.001 # % of messages should have wrong lenght in content
-      - INTEGRITY_SCHEMA_RATE=0.001 # % of messages with incorrect schema
+      - INTEGRITY_CHECKSUM_RATE=0.01 # % of messates should have wrong checksum
+      - INTEGRITY_LENGTH_CONTENT_RATE=0.01 # % of messages should have wrong lenght in content
+      - INTEGRITY_LENGTH_LINK_RATE=0.01 # % of messages should have wrong lenght in content
+      - INTEGRITY_SCHEMA_RATE=0.01 # % of messages with incorrect schema
       - INTEGRITY_PUBDATE_RATE=0.01 # % of messages with non ISO pubdate
       - NR_DUPLICATES_MAX=3
       - NR_DUPLICATES_MIN=1
       - DUPLICATE_MAX_DELAY_MS=1000
       - NR_CACHES=3
-      - MSG_RATE=100 # messages per second
+      - MSG_RATE=200 # messages per second
 
     depends_on:
       - mosquitto
@@ -417,7 +420,7 @@ services:
       - ./test-cache/nginx.conf:/etc/nginx/nginx.conf
     environment:
       - NGINX_HOST=test-cache
-      - FAIL_RATE=0.5
+      - FAIL_RATE=0.1
 
     networks:
       default:

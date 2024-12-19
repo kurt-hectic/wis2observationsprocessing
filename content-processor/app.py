@@ -19,17 +19,19 @@ from prometheus_client import  Counter, Summary
 
 nr_threads = int(os.getenv("NR_THREADS", "1"))
 log_level = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelName(log_level)
+
+remove_no_content = os.getenv("REMOVE_NO_CONTENT", "True").lower() == "true"
 
 jq_canonical_links = jq.compile('.links[] | select(.rel=="canonical").length')
 
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=log_level, 
     handlers=[  logging.StreamHandler()] )
 
 ingegrity_methods =  [ "sha256", "sha384", "sha512", "sha3-256", "sha3-384", "sha3-512" ]
 
-NR_INTEGRITY_ERRORS = Counter('integrity_errors_total', 'Number of integrity errors')
+NR_INTEGRITY_ERRORS = Counter('content_integrity_errors_total', 'Number of integrity errors')
 NR_CONTENT_ERRORS = Counter('content_fetching_errors_total', 'Number of content fetching errors')
+NR_DOWNLOAD_ERRORS = Counter('content_download_errors_total', 'Number of download errors')
 DOWNLOAD_LATENCY = Summary('download_latency_seconds', 'Time spent downloading content')
 CACHE_RELIABILITY = Summary('cache_reliability', 'Cache reliability')
 
@@ -96,22 +98,6 @@ class ContentProcessor(BaseProcessor):
 
         self.session = requests.Session()
     
-    def content_check(self,notification):
-        if not "content" in notification["properties"]:
-            try:
-                content, download_time, cache = self.handle_content(notification)
-            except Exception as e:
-                logging.error(f"could not download content for {notification['properties']['data_id']} {e}")
-                # TODO: process error in context of Kafka
-                return False
-
-            notification["properties"]["content"] = {
-                "encoding": "base64",
-                "value": base64.b64encode(content).decode("utf-8") ,
-                "size": len(content)
-            }
-
-        return notification
     
     def handle_content(self,notification):
         
@@ -122,21 +108,16 @@ class ContentProcessor(BaseProcessor):
                 resp.raise_for_status()
 
                 logging.debug("downloaded {} in {}".format(url,resp.elapsed))
-                download_time=resp.elapsed.total_seconds()
-                parsed_url = urllib.parse.urlparse(url)
-                cache = parsed_url.netloc
-
-                DOWNLOAD_LATENCY.observe(download_time)
-
                 if i>0:
                     logging.info("downloaded data_id {} from cache link {} after trying {} other links".format(notification["properties"]["data_id"],url,i))
 
                 CACHE_RELIABILITY.observe(i+1)
-                return resp.content, download_time, cache
+
+                return resp
 
             except Exception as e:
-                logging.info("could not download data_id {} from cache link {}. {}".format(notification["properties"]["data_id"],url,e))
-                NR_CONTENT_ERRORS.inc()
+                logging.warning("could not download data_id {} from cache link {}. {}".format(notification["properties"]["data_id"],url,e))
+                NR_DOWNLOAD_ERRORS.inc()
 
         raise Exception(f"data not evailable from from any cache links " + ",".join(notification["_meta"]["cache_links"]) )
         # TODO: configure download process to use the chache as partition key?
@@ -144,7 +125,39 @@ class ContentProcessor(BaseProcessor):
 
     def __process_messages_thread__(self,notification_chunk,notifications):
         for notification in notification_chunk:
-            notifications.append( self.content_check(notification) )
+            
+            if not "content" in notification["properties"]:
+                try:
+                    resp = self.handle_content(notification)
+
+                    notification["properties"]["content"] = {
+                        "encoding": "base64",
+                        "value": base64.b64encode(resp.content).decode("utf-8") ,
+                        "size": len(resp.content)
+                    }
+
+                    notification["_meta"]["cache"] = urllib.parse.urlparse(resp.url).netloc
+                    notification["_meta"]["download_time"] = resp.elapsed.total_seconds()
+                    notification["_meta"]["status_code"] = resp.status_code
+                    notification["_meta"]["content_status"] = "downloaded" 
+                except Exception as e:
+                    logging.error(f"could not download content for {notification['properties']['data_id']} {e}")
+                    notification["_meta"]["content_status"] = "download_error"
+                    NR_CONTENT_ERRORS.inc()
+                    
+            else:
+                notification["_meta"]["content_status"] = "embedded"
+
+            
+            if notification["_meta"]["content_status"] != "download_error":
+                try:
+                    integrity_check(notification)
+                except Exception as e:
+                    notification["_meta"]["content_status"] = "integrity_error"
+                    logging.error(f"integrity error for {notification['properties']['data_id']} {e}")
+                    NR_INTEGRITY_ERRORS.inc()
+            
+            notifications.append(notification)
 
 
     def __process_messages__(self,notifications):
@@ -152,51 +165,32 @@ class ContentProcessor(BaseProcessor):
         initial_length = len(notifications)
         logging.debug(f"{initial_length} new messages")
 
-        # download content for each notification if not included
-        #notifications =  [ n for n in [ self.content_check(notification) for notification in notifications ] if n ]
-
         if len(notifications) > 0:
             jobs = []
             notifications_new = []
             for chunk in chunks(notifications,nr_threads):
-                logging.debug(f"starting thread with {len(chunk)} notifications")
+                logging.debug("starting thread with %s notifications",len(chunk))
                 jobs.append(threading.Thread(target=self.__process_messages_thread__(chunk,notifications_new)))
 
-            for i,j in enumerate(jobs):
-                logging.debug(f"starting thread {i}")
+            for i, j in enumerate(jobs):
+                logging.debug("starting thread %d", i)
                 j.start()
 
-            logging.info(f"waiting for {len(jobs)} threads to finish")
+            logging.debug("waiting for %d threads to finish", len(jobs))
             
-            for i,j in enumerate(jobs):
-                logging.debug(f"waiting for thread {i} to finish")
+            for i, j in enumerate(jobs):
+                logging.debug("waiting for thread %d to finish", i)
                 j.join()
 
-            notifications = [ n for n in notifications_new if n ] # remove download errors represented by None values in the list 
+            notifications = [ n for n in notifications_new if not n["_meta"]["content_status"].endswith("_error") or not remove_no_content ]
 
-            nr_with_content = len(notifications)
-            logging.debug("number of notifications with content %s", nr_with_content)
-            if initial_length-nr_with_content > 0:
-                logging.error("removed %s because of no content",initial_length-nr_with_content)
-
-            # validate content checksum and length
-            error_messages = []
-            for i,n in enumerate(notifications):
-                try:
-                    integrity_check(n)
-                except Exception as e:
-                    error_messages.append({"reason" : "integrity error" , "detail" : str(e) , "data" : notifications.pop(i) })
-                    logging.error(f"integrity error for {n['properties']['data_id']} {e}")
-
-            nr_with_ingegrity = len(notifications)
-            logging.debug("number of notifications with correct integrity and length %s",nr_with_ingegrity)
-            if len(error_messages)>0:
-                NR_INTEGRITY_ERRORS.inc(len(error_messages))
-                logging.error("removed %s because of integrity or length",len(error_messages))
-
+            nr_removed = initial_length - len(notifications)
+            if nr_removed > 0:
+                logging.warning("number of notifications removed due to content download issues %s", nr_removed)
+    
             keys = [n["properties"]["data_id"] for n in notifications]
 
-            return notifications,keys,error_messages
+            return notifications,keys,[]
         else:
             return [],[],[]
 

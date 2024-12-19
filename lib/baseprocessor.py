@@ -84,7 +84,8 @@ class BaseProcessor(ABC):
                     )
                     self.producer.poll(0)
                     NR_PUBLISHED_MESSAGES.inc()
-                logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
+                if len(ok_messages)>0:
+                    logging.info("published %s messages to %s", len(ok_messages), kafka_pubtopic_name )
 
 
                 if len(error_messages)>0:

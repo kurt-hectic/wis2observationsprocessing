@@ -95,7 +95,7 @@ while not DONE:
     n = copy.deepcopy(notification_template)
 
     n["properties"]["data_id"] = n["properties"]["data_id"] + "-" + str(counter)
-    n["id"] = n["id"] + "-" + str(counter)
+    n["id"] = n["id"][:-7] + "{:07d}".format(counter)
 
     if random.random() >= content_integrated_rate:
         n["properties"].pop("content")
@@ -107,12 +107,12 @@ while not DONE:
     if random.random() < integrity_checksum_rate:
         n["properties"]["integrity"]["value"] = n["properties"]["integrity"]["value"] + "xx"
 
-    
     if random.random() < integrity_length_link_rate:
         n["links"][0]["length"] = n["links"][0]["length"] + 10
 
     if random.random() < integrity_schema_rate:
-        n["findme"] = "I am not supposed to be here"
+        n["wrongversion"] = n["version"]
+        del n["version"]
 
     if random.random() < integrity_pubdate_rate:
         n["properties"]["pubtime"] = "the day before yesterday"
@@ -120,13 +120,12 @@ while not DONE:
     for i in range(1,random.randint(nr_duplicates_min,nr_duplicates_max)+1):
         n_new = copy.deepcopy(n)
 
-        n_new["id"] = n_new["id"] + "-" + str(i)
+        n_new["id"] = n_new["id"][:-7] + "{:07d}".format(counter)
 
         cache = "http://test-cache-{}".format(random.randint(1,nr_caches))
 
         n_new["links"][0]["href"] = n_new["links"][0]["href"].replace("http://test-cache",cache)
     
-
         payload = {
             "notification" : n_new , 
             "pubtime" : datetime.datetime.now() + datetime.timedelta(milliseconds= random.random() * duplicate_max_delay_ms * (0 if i==1 else 1))

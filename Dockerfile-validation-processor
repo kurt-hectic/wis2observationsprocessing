@@ -7,7 +7,7 @@ WORKDIR /app
 COPY validation-processor/wis2-notification-message-bundled.json .
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir jsonschema==4.23.0 prometheus-client confluent-kafka==2.4.0 python-dateutil
+RUN pip install --no-cache-dir jsonschema==4.23.0 rfc3339-validator prometheus-client confluent-kafka==2.4.0 jq
 
 # Copy libs
 COPY lib/baseprocessor.py /app/

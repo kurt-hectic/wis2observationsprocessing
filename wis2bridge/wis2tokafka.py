@@ -10,6 +10,7 @@ import signal
 import random
 import string
 import queue
+import re
 
 import paho.mqtt.client as mqtt_paho
 
@@ -20,10 +21,8 @@ from datetime import datetime
 from uuid import uuid4
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelName(log_level)
 
-
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=log_level, 
     handlers=[  logging.StreamHandler()] )
 
 def get_random_string(length):
@@ -42,12 +41,8 @@ client_id = os.getenv("CLIENT_ID") + get_random_string(6)
 #aws_broker = os.getenv("AWS_BROKER")
 validate_ssl_cert = os.getenv("VALIDATE_SSL", "False").lower() in ["true","1","yes"]
 
-# update stats every x notifications
-threshold = int(os.getenv("REPORTING_THRESHOLD","100"))
-# group batch_size records together before sending to Kinesis stream
-batch_size = int(os.getenv("BATCH_SIZE","10"))
-heartbeat_threshold = int(os.getenv("HEARTBEAT_THRESHOLD","300")) # send an update every 5 minutes
-
+message_routing_table = { re.compile(topic.replace("#",".*").replace("+","[A-Za-z0-9-]+") ):kafka_topics for topic,kafka_topics in json.load(open(os.getenv("ROUTING_FILE"))).items() }
+logging.info(f"message routing: {message_routing_table}")
 
 # Prometheus metrics and server
 NR_EMPTY_MESSAGES = Counter('nr_emptymessages_total', 'Number of empty messages')    
@@ -86,48 +81,17 @@ def on_subscribe(client,userdata,mid, reason_codes, properties):
 
 def on_message(client, userdata, msg):
     topic=msg.topic
+    notification = msg.payload
     logging.debug("message received with topic %s", topic)
-    m_decode=str(msg.payload.decode("utf-8","ignore"))
-    #logging.debug("message received")
-    message_routing(client,topic,m_decode)
+    q.put( (topic,notification) )
+    NR_PROCESSED_MESSAGES.inc()
     
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
     if reason_code != 0:
         logging.warning("disconnected with rc %s reconnecting",reason_code)
     client.connected_flag=False
     client.disconnect_flag=True
-            
-def message_routing(client,topic,msg):
-    #logging.debug("message_routing")
-    logging.debug("routing topic: %s",topic)
-    logging.debug("routing message: %s ",msg)
-
-    NR_PROCESSED_MESSAGES.inc()
-    
-    # insert metadata into the message
-    if not msg or msg.isspace():
-        NR_EMPTY_MESSAGES.inc()
-        logging.debug("discarding empty message published on %s", topic)
-        return
-    try:
-        msg = json.loads(msg)
-    except json.JSONDecodeError as e:
-        NR_INVALID_JSON.inc()
-        logging.error("cannot parse json message %s , %s , %s",msg,e,topic)
-        return    
-
-    # add uuid as data_id if not present    
-    if not "properties" in msg or not "data_id" in msg["properties"]:
-        if not "properties" in msg:
-            msg["properties"] = {}
-        msg["properties"] = { "data_id" : str(uuid4()) }
-        NR_MESSAGES_WITHOUT_DATAID.inc()
-        logging.warning("no data_id in message, adding %s",msg["properties"]["data_id"])
-
-    msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
-    
-    logging.debug("queuing topic %s with length %s and %s",topic,len(msg),msg)
-    q.put( (topic,msg) )
+                
 
         
 def create_wis2_connection():
@@ -183,7 +147,7 @@ class ConsumerThread(threading.Thread):
         logging.info("created Kafka connection")
 
         return
-
+    
 
     def run(self):
         
@@ -192,38 +156,41 @@ class ConsumerThread(threading.Thread):
             QUEUE_SIZE.set(q.qsize())
 
             if not q.empty():
+                topic,msg = q.get()
+                try:
+                    msg = json.loads(str(msg.decode("utf-8","ignore")))
+                except Exception as e:
+                    logging.error("could not parse json message %s", msg,exc_info=True)
+                    NR_INVALID_JSON.inc()
+                    continue
 
-                # batching items together
-                records = []
-                nr_failed = 0
-                while not q.empty() and len(records)<batch_size :
-                    records.append(  q.get() )
+                msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
 
-                
-                for (topic,msg) in records: #TODO we may not need this batching, since the producer also has a queue
-                    try:
+                if not "properties" in msg or not "data_id" in msg["properties"]:
+                    msg["properties"] = msg.get("properties",{}).update({"data_id":str(uuid4())})
+                    NR_MESSAGES_WITHOUT_DATAID.inc()
+                    logging.warning("no data_id in message, adding %s",msg["properties"]["data_id"])
+ 
+                # publish message to matching kafka topics               
+                for pattern,kafka_topics in message_routing_table.items():
+                    logging.debug("checking pattern %s against %s",pattern,topic)
+                    if pattern.match(topic):
+                        for kafka_topic_name in kafka_topics:
+                            try:
+                                self.producer.produce(
+                                    topic=kafka_topic_name,
+                                    value=json.dumps(msg),
+                                    key=msg["properties"]["data_id"],
+                                    on_delivery=delivery_report
+                                )
+                                self.producer.poll(0)
+                                NR_PUBLISHED_MESSAGES.inc()
+                                logging.debug("published record %s to Kafka topic %s",msg,kafka_topic_name)
 
 
-                        self.producer.produce(
-                            topic=kafka_topic_name,
-                            value=json.dumps(msg),
-                            key=msg["properties"]["data_id"],
-                            on_delivery=delivery_report
-                        )
-                        self.producer.poll(0)
-                        NR_PUBLISHED_MESSAGES.inc()
+                            except Exception as e:
+                                logging.error(f"could not publish records to Kafka topic %s",kafka_topic_name,exc_info=True)
 
-                    except Exception as e:
-                        logging.error(f"could not publish records to Kafka",exc_info=True)
-                        q.put( (topic,msg) ) # put failed notifications back into the queue
-                        nr_failed = nr_failed + 1
-                        time.sleep(0.1)
-                        continue
-
-                    logging.debug("published %s records to Kafka",len(records))
-
-  
-                
             else: 
                 time.sleep(0.01)
         
