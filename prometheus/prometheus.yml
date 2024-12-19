@@ -40,11 +40,6 @@ scrape_configs:
 - job_name: 'wis2bridge'
   static_configs:
     - targets: ['wis2bridge:8002']
-
-- job_name: 'notification-dedup'
-  static_configs:
-    - targets: ['notification-dedup:8002']
-
     
 - job_name: 'validation-processor'
   static_configs:

@@ -309,6 +309,7 @@ services:
       - POLL_BATCH_SIZE=50
       - NR_THREADS=5
       - REMOVE_NO_CONTENT=True
+      - DOWNLOAD_MODE=True
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}

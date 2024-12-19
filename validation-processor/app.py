@@ -25,7 +25,6 @@ class ValidationProcessor(BaseProcessor):
     draft_202012_validator = None
 
     NR_INVALID_MESSAGES = Counter('invalid_messages_total', 'Number of messages with invalid notification schema')
-    NR_INVALID_DATE_MESSAGES = Counter('invalid_date_messages_total', 'Number of messages with invalid date')
     NR_DUPLICATES = Counter('duplicate_messages_total', 'Number of duplicate messages')
  
 

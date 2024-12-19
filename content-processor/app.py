@@ -21,6 +21,7 @@ nr_threads = int(os.getenv("NR_THREADS", "1"))
 log_level = os.getenv("LOG_LEVEL", "INFO")
 
 remove_no_content = os.getenv("REMOVE_NO_CONTENT", "True").lower() == "true"
+download_mode = os.getenv("DOWNLOAD_MODE", "True").lower() == "true" # if false, content will not be downloaded (GET) but only its presence checked (HEAD). No removal of invalid content will be done 
 
 jq_canonical_links = jq.compile('.links[] | select(.rel=="canonical").length')
 
@@ -122,40 +123,64 @@ class ContentProcessor(BaseProcessor):
         raise Exception(f"data not evailable from from any cache links " + ",".join(notification["_meta"]["cache_links"]) )
         # TODO: configure download process to use the chache as partition key?
 
+    def __process_message_download__(self,notification):
+        if not "content" in notification["properties"]:
+            try:
+                resp = self.handle_content(notification)
+
+                notification["properties"]["content"] = {
+                    "encoding": "base64",
+                    "value": base64.b64encode(resp.content).decode("utf-8") ,
+                    "size": len(resp.content)
+                }
+
+                notification["_meta"]["cache"] = urllib.parse.urlparse(resp.url).netloc
+                notification["_meta"]["download_time"] = resp.elapsed.total_seconds()
+                notification["_meta"]["status_code"] = resp.status_code
+                notification["_meta"]["content_status"] = "downloaded" 
+            except Exception as e:
+                logging.error(f"could not download content for {notification['properties']['data_id']} {e}")
+                notification["_meta"]["content_status"] = "download_error"
+                NR_CONTENT_ERRORS.inc()
+                
+        else:
+            notification["_meta"]["content_status"] = "embedded"
+
+        
+        if notification["_meta"]["content_status"] != "download_error":
+            try:
+                integrity_check(notification)
+            except Exception as e:
+                notification["_meta"]["content_status"] = "integrity_error"
+                logging.error(f"integrity error for {notification['properties']['data_id']} {e}")
+                NR_INTEGRITY_ERRORS.inc()
+
+        return notification
+    
+    def __process_message_head(self,notification):
+        try:
+            resp = self.session.head(notification["links"][0]["href"], timeout=10)
+            resp.raise_for_status()
+
+            notification["_meta"]["cache"] = urllib.parse.urlparse(resp.url).netloc
+            notification["_meta"]["download_time"] = resp.elapsed.total_seconds()
+            notification["_meta"]["status_code"] = resp.status_code
+            notification["_meta"]["content_status"] = "checked" if notification["properties"]["content"]["size"] == int(resp.headers["Content-Length"]) else "size_error"
+        except Exception as e:
+            logging.error(f"could not check content for {notification['properties']['data_id']} {e}")
+            notification["_meta"]["content_status"] = "download_error"
+            NR_CONTENT_ERRORS.inc()
+                
+        return notification
+
 
     def __process_messages_thread__(self,notification_chunk,notifications):
         for notification in notification_chunk:
             
-            if not "content" in notification["properties"]:
-                try:
-                    resp = self.handle_content(notification)
-
-                    notification["properties"]["content"] = {
-                        "encoding": "base64",
-                        "value": base64.b64encode(resp.content).decode("utf-8") ,
-                        "size": len(resp.content)
-                    }
-
-                    notification["_meta"]["cache"] = urllib.parse.urlparse(resp.url).netloc
-                    notification["_meta"]["download_time"] = resp.elapsed.total_seconds()
-                    notification["_meta"]["status_code"] = resp.status_code
-                    notification["_meta"]["content_status"] = "downloaded" 
-                except Exception as e:
-                    logging.error(f"could not download content for {notification['properties']['data_id']} {e}")
-                    notification["_meta"]["content_status"] = "download_error"
-                    NR_CONTENT_ERRORS.inc()
-                    
+            if download_mode:
+                notification = self.__process_message_download__(notification)
             else:
-                notification["_meta"]["content_status"] = "embedded"
-
-            
-            if notification["_meta"]["content_status"] != "download_error":
-                try:
-                    integrity_check(notification)
-                except Exception as e:
-                    notification["_meta"]["content_status"] = "integrity_error"
-                    logging.error(f"integrity error for {notification['properties']['data_id']} {e}")
-                    NR_INTEGRITY_ERRORS.inc()
+                notification = self.__process_message_head(notification)
             
             notifications.append(notification)
 
