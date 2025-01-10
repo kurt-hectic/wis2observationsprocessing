@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS postgresql.public."kafka_table_offsets" AS (
     CURRENT_TIMESTAMP 
 );
 
---CREATE SCHEMA minio.datalake
---WITH (location = 's3a://datalake/');
 CREATE SCHEMA minio.datalake
-WITH (location = 's3a://wis2obsprocessing/');
+WITH (location = 's3a://datalake/');
+--CREATE SCHEMA IF NOT EXISTS minio.datalake
+--WITH (location = 's3a://wis2obsprocessing/');
 
 CREATE TABLE IF NOT EXISTS minio.datalake.observations 
 ( 

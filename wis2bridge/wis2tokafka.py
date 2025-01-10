@@ -41,7 +41,7 @@ client_id = os.getenv("CLIENT_ID") + get_random_string(6)
 #aws_broker = os.getenv("AWS_BROKER")
 validate_ssl_cert = os.getenv("VALIDATE_SSL", "False").lower() in ["true","1","yes"]
 
-message_routing_table = { re.compile(topic.replace("#",".*").replace("+","[A-Za-z0-9-]+") ):kafka_topics for topic,kafka_topics in json.load(open(os.getenv("ROUTING_FILE"))).items() }
+message_routing_table = { re.compile(topic.replace("#",".*").replace("+","[A-Za-z0-9-]+") ):kafka_topics for topic,kafka_topics in json.load(open(os.getenv("ROUTING_FILE","/app/message-routing.json"))).items() }
 logging.info(f"message routing: {message_routing_table}")
 
 # Prometheus metrics and server

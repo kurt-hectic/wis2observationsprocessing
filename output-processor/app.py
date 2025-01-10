@@ -13,17 +13,16 @@ from prometheus_client import Counter
 
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
-level = logging.getLevelName(log_level)
 
-
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=level, 
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=log_level, 
     handlers=[  logging.StreamHandler()] )
 
 NR_RECORDS_COMMITTED = Counter('records_committed_total', 'Number of records committed to the database')
 NR_RECORDS_NOT_PARSED = Counter('records_not_parsed_total', 'Number of records not parsed')
+NR_RECORD_EMPTY_VALUES = Counter('records_empty_values_total', 'Number of records with empty values')
 
-jq_geometry = jq.compile('.notification.geometry.coordinates')
-jq_wigosid = jq.compile('.notification.properties.wigos_station_identifier')
+jq_geometry = jq.compile('.data.geometry.coordinates')
+jq_wigosid = jq.compile('.data.properties.wigos_station_identifier')
 
 jq_not_dataid = jq.compile('.notification.properties.data_id')
 jq_not_pubtime = jq.compile('.notification.properties.pubtime')
@@ -34,12 +33,16 @@ jq_meta_timereceived = jq.compile('.notification._meta.time_received')
 jq_meta_topic = jq.compile('.notification._meta.topic')
 jq_meta_broker = jq.compile('.notification._meta.broker')
 
-jq_observed_property = jq.compile('.notification.properties.name')
-jq_observed_value = jq.compile('.notification.properties.value')
-jq_observed_unit = jq.compile('.notification.properties.units')
+jq_observed_property = jq.compile('.data.properties.name')
+jq_observed_value = jq.compile('.data.properties.value')
+jq_observed_unit = jq.compile('.data.properties.units')
 
-jq_result_time = jq.compile('.notification.properties.resultTime')
-jq_phenomenon_time = jq.compile('.notification.properties.phenomenonTime')
+# jq_observed_property = jq.compile('.notification.properties.name')
+# jq_observed_value = jq.compile('.notification.properties.value')
+# jq_observed_unit = jq.compile('.notification.properties.units')
+
+jq_result_time = jq.compile('.data.properties.resultTime')
+jq_phenomenon_time = jq.compile('.data.properties.phenomenonTime')
 
 
 class OutputProcessor(BaseProcessor):
@@ -51,12 +54,12 @@ class OutputProcessor(BaseProcessor):
 
     def __format_datetime(self,datestr):
         if datestr is None or datestr == "":
-            return "NULL"
+            return None
         try:
             return isoparser.isoparse(datestr).replace(microsecond=0).isoformat()
         except Exception as e:
             logging.error(f"error formatting date {datestr}. Error: {e}")
-            return "NULL"
+            return None
 
 
     def __process_messages__(self,observations):
@@ -70,6 +73,8 @@ class OutputProcessor(BaseProcessor):
         for i,observation in enumerate(observations):
             
             try:
+
+                logging.debug("processing observation %s", observation)
 
                 wigosid = jq_wigosid.input(observation).first()
                 result_time = jq_result_time.input(observation).first()
@@ -110,26 +115,21 @@ class OutputProcessor(BaseProcessor):
 
                 key = f"{wigosid}-{ndataid}-{result_time}"
 
-                #values.append(tpl)
+                if any( [v is None for v in d.values()] ):
+                    NR_RECORD_EMPTY_VALUES.inc()
+                    logging.warning("empty values in record %s", d)
+
                 values.append(d)
                 keys.append(key)
 
-                logging.debug(f"processed observation {d}")
+                logging.debug("processed observation %s", d)
 
             except Exception as e:
                 NR_RECORDS_NOT_PARSED.inc()
-                logging.error(f"error processing observation: {observation}. Error: {e}",exc_info=True)
-
-        #execute_values(self.conn.cursor(), sql_insert, values)
-        #self.conn.commit()
-
-        #NR_RECORDS_COMMITTED.inc(len(values))    
-        #logging.debug("added %s records to the database", len(values))
-
+                logging.error("error processing observation: %s. Error: %s", observation, e, exc_info=True)
 
         return values,keys,[]
     
-
 
 if __name__ == "__main__":
    

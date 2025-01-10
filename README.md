@@ -19,3 +19,11 @@ aws iam attach-role-policy --profile malawi  --policy-arn arn:aws:iam::aws:polic
 
 
 kubectl patch deployment coredns     -n kube-system     --type json   -p="[{'op': 'remove', 'path': '/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type'}]"
+
+
+
+# to switch between AWS and minoi
+need to update the mino catalog properties in trino (minio.properties) and the metastore docker compose config and the init.sql create schema statement. 
+s3 endpoint needs to point to minio or s3 respectively
+hive.s3.ssl.enabled to false for minio , true for aws
+can leave region set and pointing to eu-central-1 for minio
