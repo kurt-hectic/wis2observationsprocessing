@@ -58,7 +58,7 @@
             {
                 "name" : "meta_status_code",
                 "mapping": "meta_status_code",
-                "type": "VARCHAR"
+                "type": "INTEGER"
             },
             {
                 "name" : "meta_content_status",
