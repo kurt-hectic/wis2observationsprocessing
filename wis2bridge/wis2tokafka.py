@@ -17,7 +17,7 @@ import paho.mqtt.client as mqtt_paho
 from confluent_kafka import Producer
 from prometheus_client import start_http_server, Counter, Gauge
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -164,7 +164,7 @@ class ConsumerThread(threading.Thread):
                     NR_INVALID_JSON.inc()
                     continue
 
-                msg["_meta"] = { "time_received" : datetime.now().isoformat() , "broker" : wis_broker_host , "topic" : topic }
+                msg["_meta"] = { "time_received" : datetime.now(timezone.utc).isoformat(timespec="milliseconds") , "broker" : wis_broker_host , "topic" : topic }
 
                 if not "properties" in msg or not "data_id" in msg["properties"]:
                     msg["properties"] = msg.get("properties",{}).update({"data_id":str(uuid4())})

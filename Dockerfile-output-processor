@@ -4,9 +4,12 @@ FROM python:3.9-slim
 # Set the working directory in the container
 WORKDIR /app
 
+# Install flex and bison
+RUN apt-get update && apt-get install -y flex bison libtool make && rm -rf /var/lib/apt/lists/*
+
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir confluent-kafka==2.4.0 jq prometheus-client python-dateutil
+RUN pip install --no-cache-dir confluent-kafka==2.4.0 jq prometheus-client python-dateutil pyjq
 
 # Copy libs
 COPY lib/baseprocessor.py /app/
@@ -14,6 +17,7 @@ COPY lib/baseprocessor.py /app/
 # Copy the rest of the application code to the container
 
 COPY output-processor/app.py .
+COPY output-processor/*.txt .
 
 COPY docker-entrypoint.sh /app/
 COPY wait-for-it.sh /app/

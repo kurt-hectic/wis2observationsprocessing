@@ -1,0 +1,18 @@
+{
+    wigos_id: .notification.properties.wigos_station_identifier, 
+    result_time: .data.properties.resultTime, 
+    phenomenon_time: .data.properties.phenomenonTime, 
+    latitude: .data.geometry.coordinates[0], 
+    longitude: .data.geometry.coordinates[1], 
+    altitude: .data.geometry.coordinates[2], 
+    observed_property: .data.properties.name, 
+    observed_value: .data.properties.value, 
+    observed_unit: .data.properties.units, 
+    notification_data_id: .notification.properties.data_id, 
+    notification_pubtime: .notification.properties.pubtime, 
+    notification_datetime: .notification.properties.datetime, 
+    notification_wigos_id: .notification.properties.wigos_station_identifier, 
+    meta_broker: .notification._meta.broker, 
+    meta_topic: .notification._meta.topic, 
+    meta_time_received: .notification._meta.time_received, 
+}

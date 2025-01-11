@@ -1,4 +1,6 @@
 {
     "cache/a/wis2/+/+/data/core/weather/surface-based-observations/synop" : ["notifications"],
-    "cache/a/wis2/+/data/core/weather/surface-based-observations/synop" : ["notifications" ]
+    "cache/a/wis2/+/data/core/weather/surface-based-observations/synop" : ["notifications" ],
+    "cache/a/wis2/#" : ["notifications-all"],
+    "origin/a/wis2/#" : ["notifications-all"]
 }

@@ -20,8 +20,8 @@ from prometheus_client import  Counter, Summary
 nr_threads = int(os.getenv("NR_THREADS", "1"))
 log_level = os.getenv("LOG_LEVEL", "INFO")
 
-remove_no_content = os.getenv("REMOVE_NO_CONTENT", "True").lower() == "true"
-download_mode = os.getenv("DOWNLOAD_MODE", "True").lower() == "true" # if false, content will not be downloaded (GET) but only its presence checked (HEAD). No removal of invalid content will be done 
+remove_no_content = os.getenv("REMOVE_NO_CONTENT", "True").lower() in ["true","1","y","yes"] # if true, notifications with no content will be removed 
+download_mode = os.getenv("DOWNLOAD_MODE", "True").lower() in ["true","1","y","yes"] # if false, content will not be downloaded (GET) but only its presence checked (HEAD). No removal of invalid content will be done 
 
 jq_canonical_links = jq.compile('.links[] | select(.rel=="canonical").length')
 
@@ -158,14 +158,22 @@ class ContentProcessor(BaseProcessor):
         return notification
     
     def __process_message_head(self,notification):
+        
+        # do not attempt to download content for origin messages
+        if notification["_meta"]["topic"].startswith("origin"):
+            return notification
+        
         try:
             resp = self.session.head(notification["links"][0]["href"], timeout=10)
-            resp.raise_for_status()
 
             notification["_meta"]["cache"] = urllib.parse.urlparse(resp.url).netloc
             notification["_meta"]["download_time"] = resp.elapsed.total_seconds()
             notification["_meta"]["status_code"] = resp.status_code
-            notification["_meta"]["content_status"] = "checked" if notification["properties"]["content"]["size"] == int(resp.headers["Content-Length"]) else "size_error"
+
+            resp.raise_for_status()
+
+            can_size = jq_canonical_links.input(notification).first()
+            notification["_meta"]["content_status"] = "checked" if can_size == int(resp.headers["Content-Length"]) else "size_error"
         except Exception as e:
             logging.error(f"could not check content for {notification['properties']['data_id']} {e}")
             notification["_meta"]["content_status"] = "download_error"
@@ -223,6 +231,6 @@ class ContentProcessor(BaseProcessor):
 
 if __name__ == "__main__":
    
-    logging.info("starting deduplication processor")
+    logging.info("starting content processor")
     processor = ContentProcessor()
     processor.start_consuming()

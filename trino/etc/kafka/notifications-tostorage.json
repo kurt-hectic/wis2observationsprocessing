@@ -59,9 +59,12 @@
             {
                 "name" : "notification_pubtime",
                 "mapping": "notification_pubtime",
-                "type": "TIMESTAMP",
-                "dataFormat": "iso8601"
-
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "notification_datetime",
+                "mapping": "notification_datetime",
+                "type": "VARCHAR"
             },
             {
                 "name" : "notification_wigos_id",
@@ -83,7 +86,6 @@
                 "mapping": "meta_time_received",
                 "type": "TIMESTAMP",
                 "dataFormat": "iso8601"
-
             }
 
             

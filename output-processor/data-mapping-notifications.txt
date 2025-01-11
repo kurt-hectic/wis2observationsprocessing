@@ -1,0 +1,17 @@
+{
+    id: .id,
+    data_id: .properties.data_id,
+    pubtime: .properties.pubtime,
+    datetime: .properties.datetime,
+    integrity_method: .properties.integrity.method,
+    link: .links | map(select(.rel == "canonical")) | .[0].href,
+    meta_broker: ._meta.broker,
+    meta_cache: ._meta.cache,
+    meta_topic: ._meta.topic,
+    meta_time_download_ms: ._meta.download_time,
+    meta_status_code: ._meta.status_code,
+    meta_content_status: ._meta.content_status,
+    meta_time_received: ._meta.time_received,
+    meta_schema_valid: ._meta.valid_schema,
+    content_included: ( .properties.content.value != null )
+}

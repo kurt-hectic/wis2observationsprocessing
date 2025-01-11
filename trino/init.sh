@@ -8,10 +8,10 @@ while ! trino --server trino:8080 --execute 'SHOW CATALOGS' | grep "system"; do
 
 
 # wait until there is data in the topic
-while trino --server trino:8080 --execute 'select count(*) from kafka.default."notifications-tostorage" ' | grep -e '"0"'; do
-    echo "No data in the topic, sleeping"
-    sleep 5
-    done 
+# while trino --server trino:8080 --execute 'select count(*) from kafka.default."notifications-tostorage" ' | grep -e '"0"'; do
+#     echo "No data in the topic, sleeping"
+#     sleep 5
+#     done 
 
 echo -e 'Creating trino catalog'
 cat /init.sql | trino --server trino:8080

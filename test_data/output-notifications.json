@@ -1,0 +1,41 @@
+{
+    "id": "5c997bac-c01d-4223-aac0-3b0f70062627",
+    "type": "Feature",
+    "version": "v04",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            80.4038,
+            73.5082,
+            46.4
+        ]
+    },
+    "properties": {
+        "data_id": "ru-aviamettelecom/data/core/weather/surface-based-observations/synop/WIGOS_0-20000-0-20674_20240618T120000-62627",
+        "datetime": "2024-06-18T12:00:00Z",
+        "pubtime": "2024-06-18T12:58:02Z",
+        "integrity": {
+            "method": "sha512",
+            "value": "Z0DAfLv6xXpn62M3m3iyB0vamCIDMaLH8vIjSOIpoyCiqclOzbgphUbScSy6xJu3JotHpgjuezq7CNjdfJk9tg=="
+        },
+        "wigos_station_identifier": "0-20000-0-20674"
+    },
+    "links": [
+        {
+            "rel": "canonical",
+            "type": "application/x-bufr",
+            "href": "http://test-cache-1/data/cache/a/ru-aviamettelecom/data/core/weather/surface-based-observations/synop/WIGOS_0-20000-0-20674_20240618T120000",
+            "length": 336
+        }
+    ],
+    "_meta": {
+        "time_received": "2025-01-11T19:23:05.786707",
+        "broker": "mosquitto",
+        "topic": "cache/a/wis2/ru-aviamettelecom/data/core/weather/surface-based-observations/synop",
+        "valid_schema": true,
+        "cache": "test-cache-1",
+        "download_time": 0.001148,
+        "status_code": 200,
+        "content_status": "download_error"
+    }
+}

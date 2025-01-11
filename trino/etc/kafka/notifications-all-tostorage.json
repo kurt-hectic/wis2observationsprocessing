@@ -1,0 +1,87 @@
+{
+    "tableName": "notifications-all-tostorage",
+    "schemaName": "default",
+    "topicName": "notifications-all-tostorage",
+    "message": {
+        "dataFormat": "json",
+        "fields": [
+            {
+                "name": "id",
+                "mapping": "id",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "data_id",
+                "mapping": "data_id",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "pubtime",
+                "mapping": "pubtime",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "datetime",
+                "mapping": "datetime",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "integrity_method",
+                "mapping": "integrity_method",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "link",
+                "mapping": "link",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "meta_broker",
+                "mapping": "meta_broker",
+                "type": "VARCHAR"
+            },
+            {
+                "name": "meta_cache",
+                "mapping": "meta_cache",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_topic",
+                "mapping": "meta_topic",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_time_download_ms",
+                "mapping": "meta_time_download_ms",
+                "type": "DOUBLE"
+            },
+            {
+                "name" : "meta_status_code",
+                "mapping": "meta_status_code",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_content_status",
+                "mapping": "meta_content_status",
+                "type": "VARCHAR"
+            },
+            {
+                "name" : "meta_time_received",
+                "mapping": "meta_time_received",
+                "type": "TIMESTAMP",
+                "dataFormat": "iso8601"
+            },
+            {
+                "name" : "meta_schema_valid",
+                "mapping": "meta_schema_valid",
+                "type": "BOOLEAN"
+            },
+            {
+                "name" : "content_included",
+                "mapping": "content_included",
+                "type": "BOOLEAN"
+            }
+
+        ]
+    }
+}

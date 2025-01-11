@@ -10,8 +10,6 @@ services:
     command: daemon --docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      
-  
 
   zookeeper:
     image: 'bitnami/zookeeper:latest'
@@ -24,7 +22,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.9.0'
     hostname: ${KAFKA_NAME}
     container_name: ${KAFKA_NAME}
     #ports:
@@ -39,6 +37,7 @@ services:
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:${KAFKA_PORT}
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LOG_RETENTION_HOURS=3
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OPTS=-javaagent:/opt/bitnami/kafka/libs/kafka-jmx-prometheus-javaagent-1.0.1.jar=7071:/opt/agents/kafka_jmx_exporter.yml
     volumes:
@@ -50,7 +49,7 @@ services:
 
 
   init-kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.9.0'
     depends_on:
       - kafka
     entrypoint: [ '/bin/sh', '-c' ]
@@ -60,11 +59,16 @@ services:
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT}  --list
 
       echo -e 'Creating kafka topics'
-      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC} --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC} --replication-factor 1 --partitions 1 
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC_DEDUP} --replication-factor 1 --partitions 1
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC_CONTENT} --replication-factor 1 --partitions 1
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC_OUTPUT} --replication-factor 1 --partitions 1
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${NOTIFICATION_TOPIC_TOSTORAGE} --replication-factor 1 --partitions 1
+      
+      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${ALL_NOTIFICATION_TOPIC} --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${ALL_NOTIFICATION_TOPIC_VALID} --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${ALL_NOTIFICATION_TOPIC_CONTENT} --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --create --if-not-exists --topic ${ALL_NOTIFICATION_TOPIC_TOSTORAGE} --replication-factor 1 --partitions 1
       
       echo -e 'Successfully created the following topics:'
       kafka-topics.sh --bootstrap-server ${KAFKA_NAME}:${KAFKA_PORT} --list
@@ -85,7 +89,7 @@ services:
       - AWS_SECRET=${AWS_SECRET}
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.datecron.schedule: "@every 5m"
+      ofelia.job-exec.datecron.schedule: "@every 2m"
       ofelia.job-exec.datecron.command: "/bin/bash /etl.sh" 
   
 
@@ -247,6 +251,7 @@ services:
       - kafka
     tty: true
 
+## observations pipeline
   validation-processor:
     build: 
       context: .
@@ -262,7 +267,7 @@ services:
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_VALID}
       - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=60
+      - POLL_TIMEOUT_SEC=30
       - POLL_BATCH_SIZE=3000
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
@@ -272,30 +277,6 @@ services:
     depends_on:
       - kafka
     tty: true
-
-  # notification-dedup:
-  #   build: 
-  #     context: .
-  #     dockerfile: ./Dockerfile-notification-dedup
-  #   container_name: notification-dedup
-  #   #volumes:
-  #   #  - ./notification-dedup:/app
-  #   expose:
-  #     - ${METRIC_PORT}
-  #   environment:
-  #     - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
-  #     - KAFKA_TOPIC=${NOTIFICATION_TOPIC_VALID}
-  #     - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_DEDUP}
-  #     - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
-  #     - LOG_LEVEL=INFO
-  #     - POLL_TIMEOUT_SEC=60
-  #     - POLL_BATCH_SIZE=3000
-  #     - CUSTOMERS_HOST=${KAFKA_NAME}
-  #     - CUSTOMERS_PORT=${KAFKA_PORT}
-  #     - METRIC_PORT=${METRIC_PORT}
-  #   depends_on:
-  #     - kafka
-  #   tty: true
 
   content-processor:
     build: 
@@ -312,8 +293,8 @@ services:
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_CONTENT}
       - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=10
-      - POLL_BATCH_SIZE=50
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=${DEFAULT_BATCH_SIZE}
       - NR_THREADS=5
       - REMOVE_NO_CONTENT=True
       - DOWNLOAD_MODE=True
@@ -338,8 +319,8 @@ services:
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_CONTENT}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_OUTPUT}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=10
-      - POLL_BATCH_SIZE=50
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=${DEFAULT_BATCH_SIZE}
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
@@ -362,14 +343,94 @@ services:
       - KAFKA_TOPIC=${NOTIFICATION_TOPIC_OUTPUT}
       - KAFKA_PUBTOPIC=${NOTIFICATION_TOPIC_TOSTORAGE}
       - LOG_LEVEL=INFO
-      - POLL_TIMEOUT_SEC=10
-      - POLL_BATCH_SIZE=50
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=${DEFAULT_BATCH_SIZE}
+      - GROUP_ID=my-consumer-output-1
+      - DATA_MAPPING_FILE=/app/data-mapping-observations.txt
+      - KEYS=wigos_id,notification_data_id,result_time
       - CUSTOMERS_HOST=${KAFKA_NAME}
       - CUSTOMERS_PORT=${KAFKA_PORT}
       - METRIC_PORT=${METRIC_PORT}
     depends_on:
       - kafka
     tty: true
+
+  ## all notifications pipeline
+  p2-validation-processor:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-validation-processor
+    container_name: all-notification-validation
+    expose:
+      - ${METRIC_PORT}
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${ALL_NOTIFICATION_TOPIC}
+      - KAFKA_PUBTOPIC=${ALL_NOTIFICATION_TOPIC_VALID}
+      - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
+      - LOG_LEVEL=INFO
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=3000
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
+      - REMOVE_INVALID_MESSAGES=False
+      - REMOVE_DUPLICATE_MESSAGES=False
+    depends_on:
+      - kafka
+    tty: true
+
+  p2-content-processor:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-content-processor
+    container_name: all-content-processor   
+    expose:
+      - ${METRIC_PORT}
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${ALL_NOTIFICATION_TOPIC_VALID}
+      - KAFKA_PUBTOPIC=${ALL_NOTIFICATION_TOPIC_CONTENT}
+      - KAFKA_ERROR_TOPIC=${ERROR_TOPIC}
+      - LOG_LEVEL=INFO
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=${DEFAULT_BATCH_SIZE}
+      - NR_THREADS=5
+      - REMOVE_NO_CONTENT=False
+      - DOWNLOAD_MODE=False
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
+    depends_on:
+      - kafka
+    tty: true
+
+  p2-output-processor:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-output-processor
+    container_name: all-output-processor
+    #volumes:
+    #  - ./output-processor:/app
+    expose:
+      - ${METRIC_PORT}
+    environment:
+      - KAFKA_BROKER=${KAFKA_NAME}:${KAFKA_PORT}
+      - KAFKA_TOPIC=${ALL_NOTIFICATION_TOPIC_CONTENT}
+      - KAFKA_PUBTOPIC=${ALL_NOTIFICATION_TOPIC_TOSTORAGE}
+      - LOG_LEVEL=INFO
+      - POLL_TIMEOUT_SEC=${DEFAULT_POLL_TIMEOUT_SEC}
+      - POLL_BATCH_SIZE=${DEFAULT_BATCH_SIZE}
+      - GROUP_ID=my-consumer-output-all-1
+      - DATA_MAPPING_FILE=/app/data-mapping-notifications.txt
+      - KEYS=meta_broker,meta_cache,pubtime,id
+      - CUSTOMERS_HOST=${KAFKA_NAME}
+      - CUSTOMERS_PORT=${KAFKA_PORT}
+      - METRIC_PORT=${METRIC_PORT}
+    depends_on:
+      - kafka
+    tty: true
+
 
   mosquitto:
     image: eclipse-mosquitto
@@ -398,8 +459,8 @@ services:
       #- SLEEPRATE=0.1
       - CONTENT_INTEGRATED_RATE=0.2 # % of messages should have the content included
       - INTEGRITY_CHECKSUM_RATE=0.01 # % of messates should have wrong checksum
-      - INTEGRITY_LENGTH_CONTENT_RATE=0.01 # % of messages should have wrong lenght in content
-      - INTEGRITY_LENGTH_LINK_RATE=0.01 # % of messages should have wrong lenght in content
+      - INTEGRITY_LENGTH_CONTENT_RATE=0.01 # % of messages should have wrong length in content
+      - INTEGRITY_LENGTH_LINK_RATE=0.01 # % of messages should have wrong length in content
       - INTEGRITY_SCHEMA_RATE=0.01 # % of messages with incorrect schema
       - INTEGRITY_PUBDATE_RATE=0.01 # % of messages with non ISO pubdate
       - NR_DUPLICATES_MAX=3
