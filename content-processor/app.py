@@ -95,6 +95,7 @@ class ContentProcessor(BaseProcessor):
     session = None
 
     def __init__(self):
+        logging.info("initializing content processor download mode %s and remove no content %s",download_mode,remove_no_content)
         BaseProcessor.__init__(self,group_id="my-consumer-content-1")
 
         self.session = requests.Session()

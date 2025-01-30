@@ -22,8 +22,8 @@ poll_batch_size = int(os.getenv("POLL_BATCH_SIZE"))
 kafka_broker = os.getenv("KAFKA_BROKER")
 kafka_topic_name = os.getenv("KAFKA_TOPIC")
 kafka_pubtopic_name = os.getenv("KAFKA_PUBTOPIC")
-kafka_broker = os.getenv("KAFKA_BROKER")
 kafka_error_topic = os.getenv("KAFKA_ERROR_TOPIC")
+group_id_env = os.getenv("GROUP_ID",None)
 
 NR_PROCESSING_ERRORS = Counter('processing_errors_total', 'Number of processing errors')
 NR_PROCESSED_MESSAGES = Counter('processed_messages_total', 'Number of processed messages')
@@ -47,6 +47,10 @@ class BaseProcessor(ABC):
         signal.signal(signal.SIGINT, self.shutdown_gracefully)
         signal.signal(signal.SIGTERM, self.shutdown_gracefully)
 
+        if group_id_env is not None:
+            group_id = group_id_env
+            logging.info(f"overriding group_id {group_id} with env var {group_id_env}")
+
         if not group_id:
             raise ValueError("need to set group_id")
 
@@ -54,12 +58,12 @@ class BaseProcessor(ABC):
             'group.id': group_id ,
             'enable.auto.commit' : True,
             'auto.offset.reset': 'latest'})
-        logging.info(f"subscribing to {kafka_topic_name}")
+        logging.info(f"subscribing to {kafka_topic_name} on {kafka_broker} with group id {group_id}")
         self.consumer.subscribe([kafka_topic_name])
 
         if kafka_pubtopic_name:
             self.producer = Producer({'bootstrap.servers': kafka_broker})
-            logging.info("created producer. Publishing to %s", kafka_pubtopic_name)
+            logging.info("created producer. Publishing to %s on %s", kafka_pubtopic_name, kafka_broker)
 
         disable_created_metrics()
         self.t = start_http_server(int(os.getenv("METRIC_PORT", "8000")))
